@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Clientes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 1.5rem; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid #ccc; padding: 6px 10px; }
+        th { background: #f3f3f3; text-align: left; }
+        .msg { padding: .6rem 1rem; border-radius: 4px; margin-bottom: .6rem; }
+        .ok { background: #e0ffe5; border: 1px solid #61b36d; }
+        .err { background: #ffe0e0; border: 1px solid #d66; }
+        a.button, button { background: #1976d2; color: #fff; padding: .5rem .9rem; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+        a.button.secondary { background: #555; }
+        form.inline { display: inline; }
+    </style>
+</head>
+<body>
+<h1>Clientes</h1>
+<div th:if="${message}" class="msg ok" th:text="${message}"></div>
+<div th:if="${error}" class="msg err" th:text="${error}"></div>
+<p>Total: <strong th:text="${count}"></strong></p>
+<p><a class="button" th:href="@{/customers/new}">Novo Cliente</a> <a class="button secondary" th:href="@{/}">Home</a></p>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="c : ${customers}">
+        <td th:text="${c.id}"></td>
+        <td th:text="${c.name}"></td>
+        <td th:text="${c.email}"></td>
+        <td>
+            <a th:href="@{'/customers/' + ${c.id} + '/edit'}">Editar</a>
+            |
+            <form class="inline" th:action="@{'/customers/' + ${c.id} + '/delete'}" method="post" onsubmit="return confirm('Remover?');">
+                <button type="submit">Excluir</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${customers == null or #lists.isEmpty(customers)}">
+        <td colspan="4"><em>Nenhum cliente cadastrado.</em></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+

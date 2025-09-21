@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}">Cliente</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 1.5rem; }
+        form { max-width: 420px; }
+        label { display:block; margin-top: .9rem; font-weight: bold; }
+        input { width:100%; padding:.5rem; box-sizing: border-box; }
+        .error { color:#b30000; font-size: .85rem; }
+        .actions { margin-top:1rem; display:flex; gap:.6rem; }
+        a.button, button { background:#1976d2; color:#fff; padding:.55rem .9rem; text-decoration:none; border:none; border-radius:4px; cursor:pointer; }
+        a.button.secondary { background:#555; }
+    </style>
+</head>
+<body>
+<h1 th:text="${title}">Cliente</h1>
+<form th:action="@{/customers}" th:object="${customer}" method="post">
+    <input type="hidden" th:if="*{id}" th:field="*{id}">
+    <label>Nome
+        <input th:field="*{name}" placeholder="Nome" />
+        <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+    </label>
+    <label>Email
+        <input th:field="*{email}" placeholder="Email" />
+        <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+    </label>
+    <div class="actions">
+        <button type="submit">Salvar</button>
+        <a class="button secondary" th:href="@{/customers}">Cancelar</a>
+    </div>
+</form>
+</body>
+</html>
+
