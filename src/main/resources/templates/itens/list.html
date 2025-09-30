@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Itens</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 1.5rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 6px 10px; }
+    th { background: #f3f3f3; text-align: left; }
+    .msg { padding: .6rem 1rem; border-radius: 4px; margin-bottom: .6rem; }
+    .ok { background: #e0ffe5; border: 1px solid #61b36d; }
+    .err { background: #ffe0e0; border: 1px solid #d66; }
+    a.button, button { background: #1976d2; color: #fff; padding: .5rem .9rem; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+    a.button.secondary { background: #555; }
+    form.inline { display: inline; }
+  </style>
+</head>
+<body>
+<h1>Itens</h1>
+<div th:if="${message}" class="msg ok" th:text="${message}"></div>
+<div th:if="${error}" class="msg err" th:text="${error}"></div>
+<p>Total: <strong th:text="${count}"></strong></p>
+<p>
+  <a class="button" th:href="@{/itens/novo}">Novo Item</a>
+  <a class="button secondary" th:href="@{/}">Home</a>
+</p>
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Número de Série</th>
+    <th>Título</th>
+    <th>Data de Aquisição</th>
+    <th>Tipo</th>
+    <th>Ações</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="i : ${itens}">
+    <td th:text="${i.idItem}"></td>
+    <td th:text="${i.numeroSerie}"></td>
+    <td th:text="${i.titulo != null ? i.titulo.nome : ''}"></td>
+    <td th:text="${i.dataAquisicao}"></td>
+    <td th:text="${i.tipoItem}"></td>
+    <td>
+      <a th:href="@{'/itens/' + ${i.idItem} + '/editar'}">Editar</a>
+      |
+      <form class="inline" th:action="@{'/itens/' + ${i.idItem} + '/excluir'}" method="post" onsubmit="return confirm('Remover item?');">
+        <button type="submit">Excluir</button>
+      </form>
+    </td>
+  </tr>
+  <tr th:if="${itens == null or #lists.isEmpty(itens)}">
+    <td colspan="6"><em>Nenhum item cadastrado.</em></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
+
