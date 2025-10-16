@@ -1,5 +1,6 @@
 package com.example.DevWeb2.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class Diretor {
     private String nome;
 
     @OneToMany(mappedBy = "diretor")
+    @JsonIgnore // 👈 evita recursão infinita no JSON
     private List<Titulo> titulos = new ArrayList<>();
 
     public Diretor() {
@@ -50,5 +52,4 @@ public class Diretor {
     public void setTitulos(List<Titulo> titulos) {
         this.titulos = titulos;
     }
-
 }

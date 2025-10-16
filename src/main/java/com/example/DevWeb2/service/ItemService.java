@@ -57,8 +57,6 @@ public class ItemService {
             throw new IllegalArgumentException("Tipo do item inválido. Use FITA, DVD ou BLURAY");
         }
     }
-
-    // TODO: implementar quando existir entidade Locacao
     private boolean possuiLocacoes(Long idItem){
         return false;
     }

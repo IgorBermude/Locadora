@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 @Entity
 @Table(name = "titulos")
 public class Titulo {
@@ -27,6 +30,7 @@ public class Titulo {
     private List<Ator> atores = new ArrayList<>();
 
     @OneToMany(mappedBy = "titulo")
+    @JsonIgnore
     private Set<Item> itens;
 
     public Titulo() {}

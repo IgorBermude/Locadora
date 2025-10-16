@@ -38,23 +38,34 @@ export class AppComponent implements OnInit {
   }
 
   carregarTodos() {
+    // Carrega atores, classes e diretores normalmente
     this.atorService.getAll().subscribe(a => this.atores = a);
     this.classeService.getAll().subscribe(c => this.classes = c);
     this.diretorService.getAll().subscribe(d => this.diretores = d);
+
+    // Carrega títulos primeiro
     this.tituloService.getAll().subscribe(t => {
       this.titulos = t;
+
+      // Depois carrega itens
       this.itemService.getAll().subscribe(i => {
-        this.itens = i.map(item => ({
-          idItem: item.idItem,         // <-- aqui pega o ID do backend
-          numeroSerie: item.numeroSerie,
-          tipoItem: item.tipoItem,
-          dataAquisicao: item.dataAquisicao,
-          tituloId: item.tituloId,
-          tituloNome: this.titulos.find(t => t.idTitulo === item.tituloId)?.nome || ''
-        }));
+        this.itens = i.map(item => {
+          // Encontra o título correspondente no array de títulos
+          const titulo = this.titulos.find(t => t.idTitulo === item.tituloId);
+
+          return {
+            idItem: item.idItem,
+            numeroSerie: item.numeroSerie,
+            tipoItem: item.tipoItem,
+            dataAquisicao: item.dataAquisicao,
+            tituloId: item.tituloId,
+            tituloNome: titulo ? titulo.nome : 'Título não encontrado'
+          };
+        });
       });
     });
   }
+
 
   // ================= CRUD Ator =================
   novoAtor() {
