@@ -1,70 +1,76 @@
 package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Classe;
+import com.example.DevWeb2.dto.ClasseDTO;
 import com.example.DevWeb2.service.ClasseService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/classes")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ClasseController {
-    @Autowired
-    private ClasseService classeService;
+
+    private final ClasseService classeService;
+
+    public ClasseController(ClasseService classeService) {
+        this.classeService = classeService;
+    }
 
     @GetMapping
-    public List<Classe> listarTodas() {
-        return classeService.listarTodas();
+    public List<ClasseDTO> listarTodas() {
+        return classeService.listarTodas().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Classe> buscarPorId(@PathVariable Long id) {
-        Optional<Classe> classe = classeService.buscarPorId(id);
-        return classe.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ClasseDTO> buscarPorId(@PathVariable Long id) {
+        return classeService.buscarPorId(id)
+                .map(this::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<?> incluirClasse(@RequestBody ClasseDTO dto) {
-        try {
-            Classe classe = classeService.incluirClasse(dto.nome, dto.valor, dto.dataDevolucao);
-            return ResponseEntity.status(HttpStatus.CREATED).body(classe);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ClasseDTO> incluirClasse(@RequestBody ClasseDTO dto) {
+        Classe classe = new Classe();
+        classe.setNome(dto.getNome());
+        classe.setValor(dto.getValor());
+        classe.setDataDevolucao(dto.getDataDevolucao());
+        Classe salvo = classeService.incluirClasse(classe);
+        return ResponseEntity.status(201).body(toDTO(salvo));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> alterarClasse(@PathVariable Long id, @RequestBody ClasseDTO dto) {
-        try {
-            Classe classe = classeService.alterarClasse(id, dto.nome, dto.valor, dto.dataDevolucao);
-            return ResponseEntity.ok(classe);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<ClasseDTO> alterarClasse(@PathVariable Long id, @RequestBody ClasseDTO dto) {
+        return classeService.buscarPorId(id)
+                .map(classe -> {
+                    classe.setNome(dto.getNome());
+                    classe.setValor(dto.getValor());
+                    classe.setDataDevolucao(dto.getDataDevolucao());
+                    Classe atualizado = classeService.alterarClasse(classe);
+                    return ResponseEntity.ok(toDTO(atualizado));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> excluirClasse(@PathVariable Long id) {
-        try {
-            classeService.excluirClasse(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException | DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Void> excluirClasse(@PathVariable Long id) {
+        classeService.excluirClasse(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // DTO interno para receber dados do frontend
-    public static class ClasseDTO {
-        public String nome;
-        public BigDecimal valor;
-        public LocalDate dataDevolucao;
+    // Converte entidade Classe em DTO
+    private ClasseDTO toDTO(Classe classe) {
+        ClasseDTO dto = new ClasseDTO();
+        dto.setIdClasse(classe.getIdClasse());
+        dto.setNome(classe.getNome());
+        dto.setValor(classe.getValor());
+        dto.setDataDevolucao(classe.getDataDevolucao());
+        return dto;
     }
 }
-

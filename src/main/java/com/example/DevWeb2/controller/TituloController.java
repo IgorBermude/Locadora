@@ -2,15 +2,14 @@ package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Titulo;
 import com.example.DevWeb2.service.TituloService;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
-@RequestMapping("/titulos")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/titulos")
+@CrossOrigin(origins = "http://localhost:4200")
 public class TituloController {
 
     private final TituloService service;
@@ -20,43 +19,35 @@ public class TituloController {
     }
 
     @GetMapping
-    public String list(Model model){
-        model.addAttribute("titulos", service.listar());
-        model.addAttribute("count", service.count());
-        return "titulos/list";
+    public List<Titulo> listar() {
+        return service.listar();
     }
 
-    @GetMapping("/novo")
-    public String createForm(Model model){
-        model.addAttribute("titulo", new Titulo());
-        model.addAttribute("title", "Novo Título");
-        return "titulos/form";
+    @GetMapping("/{id}")
+    public ResponseEntity<Titulo> buscar(@PathVariable Long id) {
+        return service.pesquisar(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public String save(@Valid @ModelAttribute("titulo") Titulo titulo,
-                       BindingResult bindingResult,
-                       RedirectAttributes ra){
-        if(bindingResult.hasErrors()){
-            return "titulos/form";
-        }
-        service.adicionar(titulo);
-        ra.addFlashAttribute("message", "Título salvo com sucesso");
-        return "redirect:/titulos";
+    public Titulo salvar(@RequestBody Titulo titulo) {
+        return service.adicionar(titulo);
     }
 
-    @GetMapping("/{id}/editar")
-    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra){
+    @PutMapping("/{id}")
+    public ResponseEntity<Titulo> atualizar(@PathVariable Long id, @RequestBody Titulo titulo) {
         return service.pesquisar(id)
-                .map(t -> { model.addAttribute("titulo", t); model.addAttribute("title", "Editar Título"); return "titulos/form"; })
-                .orElseGet(() -> { ra.addFlashAttribute("error", "Título não encontrado"); return "redirect:/titulos"; });
+                .map(t -> {
+                    titulo.setIdTitulo(id);
+                    return ResponseEntity.ok(service.adicionar(titulo));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{id}/excluir")
-    public String delete(@PathVariable Long id, RedirectAttributes ra){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);
-        ra.addFlashAttribute("message", "Título removido");
-        return "redirect:/titulos";
+        return ResponseEntity.noContent().build();
     }
 }
-

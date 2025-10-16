@@ -1,0 +1,89 @@
+<h1>Dados do Sistema</h1>
+
+<nav>
+  <button (click)="aba='atores'">Atores</button>
+  <button (click)="aba='classes'">Classes</button>
+  <button (click)="aba='diretores'">Diretores</button>
+  <button (click)="aba='titulos'">Títulos</button>
+  <button (click)="aba='itens'">Itens</button>
+</nav>
+
+<div [ngSwitch]="aba">
+
+  <!-- Atores -->
+  <div *ngSwitchCase="'atores'">
+    <h2>Atores</h2>
+    <button class="novo-btn" (click)="novoAtor()">Novo Ator</button>
+    <ul>
+      <li *ngFor="let a of atores">
+        {{ a.nome }}
+        <span class="acoes">
+          <button (click)="alterarAtor(a)">Alterar</button>
+          <button (click)="excluirAtor(a.id)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Classes -->
+  <div *ngSwitchCase="'classes'">
+    <h2>Classes</h2>
+    <button class="novo-btn" (click)="novaClasse()">Nova Classe</button>
+    <ul>
+      <li *ngFor="let c of classes">
+        {{ c.nome }} - Valor: {{ c.valor }} - Devolução: {{ c.dataDevolucao }}
+        <span class="acoes">
+          <button (click)="alterarClasse(c)">Alterar</button>
+          <button (click)="excluirClasse(c.idClasse)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Diretores -->
+  <div *ngSwitchCase="'diretores'">
+    <h2>Diretores</h2>
+    <button class="novo-btn" (click)="novoDiretor()">Novo Diretor</button>
+    <ul>
+      <li *ngFor="let d of diretores">
+        {{ d.nome }}
+        <span class="acoes">
+          <button (click)="alterarDiretor(d)">Alterar</button>
+          <button (click)="excluirDiretor(d.idDiretor)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Títulos -->
+  <div *ngSwitchCase="'titulos'">
+    <h2>Títulos</h2>
+    <button class="novo-btn" (click)="novoTitulo()">Novo Título</button>
+    <ul>
+      <li *ngFor="let t of titulos">
+        {{ t.nome }} - Classe: {{ t.classe?.nome }} - Diretor: {{ t.diretor?.nome }}
+        <span class="acoes">
+          <button (click)="alterarTitulo(t)">Alterar</button>
+          <button (click)="excluirTitulo(t.idTitulo)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Itens -->
+  <div *ngSwitchCase="'itens'">
+    <h2>Itens</h2>
+    <button class="novo-btn" (click)="novoItem()">Novo Item</button>
+    <ul>
+      <li *ngFor="let i of itens">
+        {{ i.numeroSerie }} - {{ i.tipoItem }} - {{ i.dataAquisicao }}
+        <span *ngIf="i.tituloNome">- Título: {{ i.tituloNome }}</span>
+        <span class="acoes">
+          <button (click)="alterarItem(i)">Alterar</button>
+          <button (click)="excluirItem(i.idItem)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+</div>

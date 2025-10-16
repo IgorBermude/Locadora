@@ -1,0 +1,15 @@
+<h2>Atores</h2>
+
+<form [formGroup]="atorForm" (ngSubmit)="save()">
+  <input formControlName="nome" placeholder="Nome do Ator" required />
+  <button type="submit">{{ editId ? 'Atualizar' : 'Adicionar' }}</button>
+  <button type="button" (click)="resetForm()">Cancelar</button>
+</form>
+
+<ul>
+  <li *ngFor="let ator of atores">
+    {{ ator.nome }}
+    <button (click)="edit(ator)">Editar</button>
+    <button (click)="delete(ator.idAtor!)">Excluir</button>
+  </li>
+</ul>

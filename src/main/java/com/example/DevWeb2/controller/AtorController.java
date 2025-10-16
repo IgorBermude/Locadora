@@ -2,15 +2,14 @@ package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Ator;
 import com.example.DevWeb2.service.AtorService;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.List;
 
-@Controller
-@RequestMapping("/atores")
+@RestController
+@RequestMapping("/api/atores") // prefixo /api para diferenciar da parte Thymeleaf
+@CrossOrigin(origins = "http://localhost:4200") // libera CORS para Angular
 public class AtorController {
 
     private final AtorService service;
@@ -19,50 +18,47 @@ public class AtorController {
         this.service = service;
     }
 
+    // GET /api/atores → lista todos
     @GetMapping
-    public String list(Model model){
-        model.addAttribute("atores", service.listar());
-        model.addAttribute("count", service.count());
-        return "atores/list";
+    public List<Ator> getAll() {
+        return service.listar();
     }
 
-    @GetMapping("/novo")
-    public String createForm(Model model){
-        model.addAttribute("ator", new Ator());
-        model.addAttribute("title", "Novo Ator");
-        return "atores/form";
-    }
-
-    @PostMapping
-    public String save(@Valid @ModelAttribute("ator") Ator ator,
-                       BindingResult bindingResult,
-                       RedirectAttributes redirectAttributes){
-        if (bindingResult.hasErrors()) {
-            return "atores/form";
-        }
-        service.adicionar(ator);
-        redirectAttributes.addFlashAttribute("message", "Ator salvo com sucesso");
-        return "redirect:/atores";
-    }
-
-    @GetMapping("/{id}/editar")
-    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra){
+    // GET /api/atores/{id} → retorna ator específico
+    @GetMapping("/{id}")
+    public ResponseEntity<Ator> getById(@PathVariable Long id) {
         return service.pesquisar(id)
-                .map(a -> {
-                    model.addAttribute("ator", a);
-                    model.addAttribute("title", "Editar Ator");
-                    return "atores/form";
-                })
-                .orElseGet(() -> {
-                    ra.addFlashAttribute("error", "Ator não encontrado");
-                    return "redirect:/atores";
-                });
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{id}/excluir")
-    public String delete(@PathVariable Long id, RedirectAttributes ra){
-        service.deletar(id);
-        ra.addFlashAttribute("message", "Ator removido");
-        return "redirect:/atores";
+    // POST /api/atores → cria novo ator
+    @PostMapping
+    public ResponseEntity<Ator> create(@RequestBody Ator ator) {
+        Ator salvo = service.adicionar(ator);
+        return new ResponseEntity<>(salvo, HttpStatus.CREATED);
+    }
+
+    // PUT /api/atores/{id} → atualiza ator existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Ator> update(@PathVariable Long id, @RequestBody Ator ator) {
+        return service.pesquisar(id)
+                .map(existing -> {
+                    ator.setId(id); // garante que o id é o mesmo
+                    Ator atualizado = service.adicionar(ator);
+                    return ResponseEntity.ok(atualizado);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /api/atores/{id} → deleta ator
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (service.pesquisar(id).isPresent()) {
+            service.deletar(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

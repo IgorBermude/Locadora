@@ -1,17 +1,19 @@
 package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Diretor;
+import com.example.DevWeb2.dto.ClasseDTO;
+import com.example.DevWeb2.dto.DiretorDTO;
+import com.example.DevWeb2.dto.TituloDTO;
 import com.example.DevWeb2.service.DiretorService;
-import jakarta.validation.Valid;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
-@RequestMapping("/diretores")
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/diretores")
+@CrossOrigin(origins = "http://localhost:4200")
 public class DiretorController {
 
     private final DiretorService service;
@@ -21,51 +23,67 @@ public class DiretorController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("diretores", service.listar());
-        model.addAttribute("count", service.count());
-        return "diretores/list";
+    public List<DiretorDTO> listar() {
+        return service.listar().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    @GetMapping("/novo")
-    public String createForm(Model model) {
-        model.addAttribute("diretor", new Diretor());
-        model.addAttribute("title", "Novo Diretor");
-        return "diretores/form";
+    @GetMapping("/{id}")
+    public ResponseEntity<DiretorDTO> buscar(@PathVariable Long id) {
+        return service.pesquisar(id)
+                .map(this::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public String save(@Valid @ModelAttribute("diretor") Diretor diretor,
-                       BindingResult bindingResult,
-                       RedirectAttributes ra) {
-        if (bindingResult.hasErrors()) {
-            return "diretores/form";
-        }
-        try {
-            service.adicionar(diretor);
-            ra.addFlashAttribute("message", "Diretor salvo com sucesso");
-            return "redirect:/diretores";
-        } catch (IllegalArgumentException e) {
-            bindingResult.rejectValue("nome", "invalid", e.getMessage());
-            return "diretores/form";
-        }
+    public DiretorDTO salvar(@RequestBody Diretor diretor) {
+        Diretor d = service.adicionar(diretor);
+        return toDTO(d);
     }
 
-    @GetMapping("/{id}/editar")
-    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra) {
+    @PutMapping("/{id}")
+    public ResponseEntity<DiretorDTO> atualizar(@PathVariable Long id, @RequestBody Diretor diretor) {
         return service.pesquisar(id)
-                .map(d -> { model.addAttribute("diretor", d); model.addAttribute("title", "Editar Diretor"); return "diretores/form"; })
-                .orElseGet(() -> { ra.addFlashAttribute("error", "Diretor não encontrado"); return "redirect:/diretores"; });
+                .map(d -> {
+                    diretor.setIdDiretor(d.getIdDiretor());
+                    Diretor atualizado = service.adicionar(diretor);
+                    return ResponseEntity.ok(toDTO(atualizado));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{id}/excluir")
-    public String delete(@PathVariable Long id, RedirectAttributes ra) {
-        try {
-            service.deletar(id);
-            ra.addFlashAttribute("message", "Diretor removido");
-        } catch (IllegalArgumentException | DataIntegrityViolationException e) {
-            ra.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/diretores";
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        service.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Conversão da entidade para DTO
+    private DiretorDTO toDTO(Diretor diretor) {
+        DiretorDTO dto = new DiretorDTO();
+        dto.setIdDiretor(diretor.getIdDiretor());
+        dto.setNome(diretor.getNome());
+
+        List<TituloDTO> titulos = diretor.getTitulos().stream().map(titulo -> {
+            TituloDTO tDto = new TituloDTO();
+            tDto.setIdTitulo(titulo.getIdTitulo());
+            tDto.setNome(titulo.getNome());
+
+            if (titulo.getClasse() != null) {
+                ClasseDTO cDto = new ClasseDTO();
+                cDto.setIdClasse(titulo.getClasse().getIdClasse());
+                cDto.setNome(titulo.getClasse().getNome());
+                cDto.setValor(titulo.getClasse().getValor());
+                cDto.setDataDevolucao(titulo.getClasse().getDataDevolucao());
+                tDto.setClasse(cDto);
+            }
+
+            return tDto;
+        }).collect(Collectors.toList());
+
+        dto.setTitulos(titulos);
+        return dto;
     }
 }

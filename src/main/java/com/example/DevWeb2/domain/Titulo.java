@@ -54,6 +54,9 @@ public class Titulo {
     public Classe getClasse() { return classe; }
     public void setClasse(Classe classe) { this.classe = classe; }
 
+    public Diretor getDiretor() { return diretor; }
+    public void setDiretor(Diretor diretor) { this.diretor = diretor; }
+
     public Set<Item> getItens() { return itens; }
     public void setItens(Set<Item> itens) { this.itens = itens; }
 }

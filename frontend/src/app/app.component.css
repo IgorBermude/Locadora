@@ -1,0 +1,174 @@
+/* app.component.css */
+
+/* Reset básico e fonte */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #f4f6f8;
+  color: #333;
+}
+
+/* Container geral */
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  color: #2c3e50;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+nav button {
+  padding: 10px 20px;
+  border: none;
+  background: #3498db;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+}
+
+nav button:hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+/* Cada aba */
+div[ngSwitchCase] {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+/* Títulos das seções */
+h2 {
+  margin-bottom: 15px;
+  color: #34495e;
+}
+
+/* Listas de dados */
+ul {
+  list-style: none;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ecf0f1;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+li:hover {
+  background: #dfe6e9;
+}
+
+/* Botões internos (Excluir, Editar, etc.) */
+li button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+li button:hover {
+  opacity: 0.8;
+}
+
+li button:first-of-type {
+  background: #e74c3c;
+  color: white;
+  margin-left: 10px;
+}
+
+li button:last-of-type {
+  background: #27ae60;
+  color: white;
+}
+
+/* Botão de criar novo */
+div[ngSwitchCase] > button {
+  margin-bottom: 15px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background: #8e44ad;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+}
+
+div[ngSwitchCase] > button:hover {
+  background: #732d91;
+  transform: scale(1.05);
+}
+
+/* Formulários (caso use) */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+form input, form select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #bdc3c7;
+}
+
+form button {
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+form button:hover {
+  background: #2980b9;
+}
+
+.novo-btn {
+  margin-bottom: 15px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background: #8e44ad;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+}
+
+.novo-btn:hover {
+  background: #732d91;
+  transform: scale(1.05);
+}
+
+.acoes {
+  display: inline-flex; 
+  gap: 5px;             
+}

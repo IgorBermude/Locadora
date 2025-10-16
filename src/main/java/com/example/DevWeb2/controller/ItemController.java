@@ -2,18 +2,19 @@ package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Item;
 import com.example.DevWeb2.domain.Titulo;
+import com.example.DevWeb2.dto.ItemDTO;
 import com.example.DevWeb2.service.ItemService;
 import com.example.DevWeb2.service.TituloService;
-import jakarta.validation.Valid;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
-@RequestMapping("/itens")
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/itens")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ItemController {
 
     private final ItemService itemService;
@@ -25,72 +26,73 @@ public class ItemController {
     }
 
     @GetMapping
-    public String list(Model model){
-        model.addAttribute("itens", itemService.listar());
-        model.addAttribute("count", itemService.count());
-        return "itens/list";
+    public List<ItemDTO> listar() {
+        return itemService.listar().stream()
+                .map(i -> {
+                    ItemDTO dto = new ItemDTO();
+                    dto.idItem = i.getIdItem(); // <--- importante
+                    dto.numeroSerie = i.getNumeroSerie();
+                    dto.tipoItem = i.getTipoItem();
+                    dto.dataAquisicao = i.getDataAquisicao();
+                    dto.tituloId = i.getTitulo().getIdTitulo();
+                    return dto;
+                })
+                .toList();
     }
 
-    @GetMapping("/novo")
-    public String createForm(Model model){
-        model.addAttribute("item", new Item());
-        prepararCombos(model);
-        model.addAttribute("title", "Novo Item");
-        return "itens/form";
-    }
-
-    @GetMapping("/{id}/editar")
-    public String edit(@PathVariable Long id, Model model, RedirectAttributes ra){
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemDTO> buscar(@PathVariable Long id) {
         return itemService.pesquisar(id)
-                .map(i -> { model.addAttribute("item", i); prepararCombos(model); model.addAttribute("title", "Editar Item"); return "itens/form"; })
-                .orElseGet(() -> { ra.addFlashAttribute("error", "Item não encontrado"); return "redirect:/itens"; });
+                .map(item -> {
+                    ItemDTO dto = new ItemDTO();
+                    dto.numeroSerie = item.getNumeroSerie();
+                    dto.tipoItem = item.getTipoItem();
+                    dto.dataAquisicao = item.getDataAquisicao();
+                    dto.tituloId = item.getTitulo().getIdTitulo();
+                    return ResponseEntity.ok(dto);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public String save(@Valid @ModelAttribute("item") Item item,
-                       BindingResult bindingResult,
-                       @RequestParam(name = "tituloId", required = false) Long tituloId,
-                       RedirectAttributes ra,
-                       Model model){
-        if (tituloId == null) {
-            bindingResult.rejectValue("titulo", "invalid", "Selecione um título");
-        } else {
-            Titulo titulo = tituloService.pesquisar(tituloId).orElse(null);
-            if (titulo == null) {
-                bindingResult.rejectValue("titulo", "invalid", "Título inválido");
-            } else {
-                item.setTitulo(titulo);
-            }
-        }
-        if (bindingResult.hasErrors()){
-            prepararCombos(model);
-            return "itens/form";
-        }
+    public ResponseEntity<?> salvar(@RequestBody ItemDTO dto) {
         try {
+            Titulo titulo = tituloService.pesquisar(dto.tituloId)
+                    .orElseThrow(() -> new IllegalArgumentException("Título inválido"));
+            Item item = new Item();
+            item.setNumeroSerie(dto.numeroSerie);
+            item.setTipoItem(dto.tipoItem);
+            item.setDataAquisicao(dto.dataAquisicao);
+            item.setTitulo(titulo);
             itemService.adicionar(item);
-            ra.addFlashAttribute("message", "Item salvo com sucesso");
-            return "redirect:/itens";
-        } catch (IllegalArgumentException e){
-            bindingResult.reject(null, e.getMessage());
-            prepararCombos(model);
-            return "itens/form";
+            return ResponseEntity.status(HttpStatus.CREATED).body(item);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PostMapping("/{id}/excluir")
-    public String delete(@PathVariable Long id, RedirectAttributes ra){
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody ItemDTO dto) {
+        return itemService.pesquisar(id).map(item -> {
+            Titulo titulo = tituloService.pesquisar(dto.tituloId)
+                    .orElseThrow(() -> new IllegalArgumentException("Título inválido"));
+            item.setNumeroSerie(dto.numeroSerie);
+            item.setTipoItem(dto.tipoItem);
+            item.setDataAquisicao(dto.dataAquisicao);
+            item.setTitulo(titulo);
+            itemService.adicionar(item);
+            return ResponseEntity.ok(item);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) {
         try {
             itemService.deletar(id);
-            ra.addFlashAttribute("message", "Item removido");
-        } catch (IllegalArgumentException | DataIntegrityViolationException e){
-            ra.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return "redirect:/itens";
     }
 
-    private void prepararCombos(Model model){
-        model.addAttribute("titulos", tituloService.listar());
-        model.addAttribute("tipos", new String[]{"FITA", "DVD", "BLURAY"});
-    }
 }
-
