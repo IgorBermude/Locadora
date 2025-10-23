@@ -100,6 +100,9 @@ spring.jpa.hibernate.ddl-auto=validate
 ```
 
 ## Suporte
+
+
+Projeto desenvolvido com backend em Spring Boot com JPA + PostgreSQL e H2, frontend Angular. API REST, DTOs e segurança. O projeto Locadora tem como objetivo informatizar o funcionamento de uma locadora, automatizando o controle de acervo e o atendimento aos clientes. O sistema foi desenvolvido com base em modelagem orientada a objetos e diagramas de casos de uso, abrangendo o gerenciamento completo de títulos, atores, diretores, classes e itens (fitas, DVDs e Blu-rays), além do cadastro de clientes, locações e devoluções. A solução busca otimizar os processos internos, reduzir erros manuais e oferecer uma experiência mais ágil tanto para os funcionários quanto para os clientes da locadora.
 Peça exemplos de: DTO, controller REST paginado, migration Flyway, teste MockMvc, interceptor Angular.
 
 ---
