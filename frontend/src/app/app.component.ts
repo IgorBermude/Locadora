@@ -153,14 +153,27 @@ export class AppComponent implements OnInit {
   // ================= CRUD Item =================
   novoItem() {
     const numeroSerie = prompt("Número de série:");
-    const tipoItem = prompt("Tipo do item:");
+    const tipoItem = prompt("Tipo do item (FITA, DVD, BLURAY):");
     const dataAquisicao = prompt("Data de aquisição (YYYY-MM-DD):");
     const tituloId = parseInt(prompt("ID do título:") || '0', 10);
-    if (numeroSerie && tipoItem && dataAquisicao && tituloId > 0) {
-      this.itemService.create({ numeroSerie, tipoItem, dataAquisicao, tituloId } as ItemDTO)
-        .subscribe(() => this.carregarTodos());
+
+    if (!numeroSerie || !tipoItem || !dataAquisicao || tituloId <= 0) {
+      alert("Preencha todos os campos corretamente!");
+      return;
     }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataAquisicao)) {
+      alert("Formato de data inválido! Use YYYY-MM-DD.");
+      return;
+    }
+
+    this.itemService.create({ numeroSerie, tipoItem, dataAquisicao, tituloId } as ItemDTO)
+      .subscribe({
+        next: () => this.carregarTodos(),
+        error: (err) => alert('Erro ao criar item: ' + err.error)
+      });
   }
+
 
   alterarItem(item: ItemDTO & { tituloNome?: string }) {
     const numeroSerie = prompt("Número de série:", item.numeroSerie);
