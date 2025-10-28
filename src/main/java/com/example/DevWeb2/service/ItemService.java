@@ -2,6 +2,7 @@ package com.example.DevWeb2.service;
 
 import com.example.DevWeb2.domain.Item;
 import com.example.DevWeb2.repository.ItemRepository;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,5 +60,26 @@ public class ItemService {
     }
     private boolean possuiLocacoes(Long idItem){
         return false;
+    }
+
+    public Item alterar(@Valid Item item) {
+        Item existente = repository.findById(item.getIdItem())
+                .orElseThrow(() -> new IllegalArgumentException("Item não encontrado"));
+
+        validar(item);
+
+        existente.setNumeroSerie(item.getNumeroSerie());
+        existente.setTipoItem(item.getTipoItem().trim().toUpperCase());
+        existente.setDataAquisicao(item.getDataAquisicao());
+        existente.setTitulo(item.getTitulo());
+
+        // checar unicidade respeitando updates
+        repository.findByNumeroSerie(item.getNumeroSerie().trim()).ifPresent(existing -> {
+            if (!existing.getIdItem().equals(item.getIdItem())) {
+                throw new IllegalArgumentException("Já existe um item com este número de série");
+            }
+        });
+
+        return repository.save(existente);
     }
 }

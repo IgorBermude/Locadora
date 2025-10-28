@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "itens")
+@Table(name = "items")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,28 @@ public class Item {
     @NotBlank
     @Column(name = "tipo_item", nullable = false, length = 20)
     private String tipoItem; // FITA, DVD, BLURAY
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Locacao> locacaoes = new ArrayList<>();
+
+    public Item() {}
+
+    public Item(Long idItem, String numeroSerie, Titulo titulo, LocalDate dataAquisicao, String tipoItem, List<Locacao> locacaoes) {
+        this.idItem = idItem;
+        this.numeroSerie = numeroSerie;
+        this.titulo = titulo;
+        this.dataAquisicao = dataAquisicao;
+        this.tipoItem = tipoItem;
+        this.locacaoes = locacaoes;
+    }
+
+    public List<Locacao> getLocacaoes() {
+        return locacaoes;
+    }
+
+    public void setLocacaoes(List<Locacao> locacaoes) {
+        this.locacaoes = locacaoes;
+    }
 
     // getters/setters
     public Long getIdItem() { return idItem; }
