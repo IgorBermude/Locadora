@@ -3,7 +3,9 @@ package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Cliente;
 import com.example.DevWeb2.dto.ClienteDTO;
+import com.example.DevWeb2.dto.TituloDTO;
 import com.example.DevWeb2.mapper.ClienteMapper;
+import com.example.DevWeb2.mapper.TituloMapper;
 import com.example.DevWeb2.service.ClienteService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -61,5 +63,26 @@ public class ClienteController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/desativar")
+    public ResponseEntity<Void> desativarCliente(@PathVariable Long id) {
+        service.desativarCliente(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/reativar")
+    public ResponseEntity<Void> reativarCliente(@PathVariable Long id) {
+        service.reativarCliente(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/titulos")
+    public ResponseEntity<List<TituloDTO>> consultarTitulosCliente(@PathVariable Long id) {
+        List<TituloDTO> titulos = service.consultarTitulosCliente(id)
+                .stream()
+                .map(TituloMapper::tituloToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(titulos);
     }
 }

@@ -25,7 +25,7 @@ public class Locacao {
     private BigDecimal valorCobrado;
 
     @Column()
-    private float multaCobrada;
+    private BigDecimal multaCobrada;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cliente_id")
@@ -37,7 +37,7 @@ public class Locacao {
 
     public Locacao() {}
 
-    public Locacao(Long idLocacao, LocalDate dtLocacao, LocalDate dtDevolucaoPrevista, LocalDate dtDevolucaoEfetiva, BigDecimal valorCobrado, float multaCobrada, Cliente cliente, Item item) {
+    public Locacao(Long idLocacao, LocalDate dtLocacao, LocalDate dtDevolucaoPrevista, LocalDate dtDevolucaoEfetiva, BigDecimal valorCobrado, BigDecimal multaCobrada, Cliente cliente, Item item) {
         this.idLocacao = idLocacao;
         this.dtLocacao = dtLocacao;
         this.dtDevolucaoPrevista = dtDevolucaoPrevista;
@@ -56,11 +56,11 @@ public class Locacao {
         this.cliente = cliente;
     }
 
-    public float getMultaCobrada() {
+    public BigDecimal getMultaCobrada() {
         return multaCobrada;
     }
 
-    public void setMultaCobrada(float multaCobrada) {
+    public void setMultaCobrada(BigDecimal multaCobrada) {
         this.multaCobrada = multaCobrada;
     }
 

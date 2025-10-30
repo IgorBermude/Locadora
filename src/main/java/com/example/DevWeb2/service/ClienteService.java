@@ -3,6 +3,7 @@ package com.example.DevWeb2.service;
 import com.example.DevWeb2.domain.Cliente;
 import com.example.DevWeb2.domain.Dependente;
 import com.example.DevWeb2.domain.Socio;
+import com.example.DevWeb2.domain.Titulo;
 import com.example.DevWeb2.repository.ClienteRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -126,5 +127,15 @@ public class ClienteService {
             cliente.setEstahAtivo(true);
             repository.save(cliente);
         }
+    }
+
+    public List<Titulo> consultarTitulosCliente(Long idCliente) {
+        if (idCliente == null) {
+            throw new IllegalArgumentException("ID do cliente não pode ser nulo");
+        }
+        Cliente cliente = repository.findById(idCliente)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+
+        return repository.consultarTitulosPorCliente(cliente.getIdCliente());
     }
 }

@@ -2,12 +2,15 @@ package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Classe;
 import com.example.DevWeb2.dto.ClasseDTO;
+import com.example.DevWeb2.mapper.ClasseMapper;
 import com.example.DevWeb2.service.ClasseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.DevWeb2.mapper.ClasseMapper.toDTO;
 
 @RestController
 @RequestMapping("/api/classes")
@@ -23,14 +26,14 @@ public class ClasseController {
     @GetMapping
     public List<ClasseDTO> listarTodas() {
         return classeService.listarTodas().stream()
-                .map(this::toDTO)
+                .map(ClasseMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ClasseDTO> buscarPorId(@PathVariable Long id) {
         return classeService.buscarPorId(id)
-                .map(this::toDTO)
+                .map(ClasseMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -62,15 +65,5 @@ public class ClasseController {
     public ResponseEntity<Void> excluirClasse(@PathVariable Long id) {
         classeService.excluirClasse(id);
         return ResponseEntity.noContent().build();
-    }
-
-    // Converte entidade Classe em DTO
-    private ClasseDTO toDTO(Classe classe) {
-        ClasseDTO dto = new ClasseDTO();
-        dto.setIdClasse(classe.getIdClasse());
-        dto.setNome(classe.getNome());
-        dto.setValor(classe.getValor());
-        dto.setDataDevolucao(classe.getDataDevolucao());
-        return dto;
     }
 }

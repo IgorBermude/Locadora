@@ -10,6 +10,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/locacoes")
@@ -85,4 +87,63 @@ public class LocacaoController {
         }
     }
 
+    // endpoint padronizado para registrar devolução por número de série
+    @PostMapping("/devolucao")
+    public ResponseEntity<?> registrarDevolucao(@RequestBody Map<String, String> body) {
+        String numeroSerie = body.get("numeroSerie");
+        if (numeroSerie == null || numeroSerie.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("erro", "numeroSerie é obrigatório"));
+        }
+
+        try {
+            Locacao loc = service.registrarDevolucaoPorNumeroSerie(numeroSerie);
+
+            // retorno mínimo com informações relevantes (ajuste para usar DTO se existir)
+            return ResponseEntity.ok(Map.of(
+                    "idLocacao", loc.getIdLocacao(),
+                    "numeroSerie", numeroSerie,
+                    "dataDevolucaoEfetiva", loc.getDtDevolucaoEfetiva(),
+                    "multa", loc.getMultaCobrada(),
+                    // total a pagar: se a locação já não foi paga, soma-se o valor da locação + multa
+                    "totalAPagar", computeTotalAPagar(loc)
+            ));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(Map.of("erro", ex.getMessage()));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(Map.of("erro", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("erro", "Erro ao processar devolução"));
+        }
+    }
+
+    // helper: tenta calcular total a pagar de forma genérica; ajuste conforme seu modelo (campo de pagamento)
+    private Object computeTotalAPagar(Locacao loc) {
+        try {
+            // se loc.hasPagamento / isPago existir, adaptar; aqui assumimos método isPaga()
+            boolean paga = false;
+            try {
+                // tentar chamar isPaga() se existir
+                paga = (boolean) Locacao.class.getMethod("isPaga").invoke(loc);
+            } catch (NoSuchMethodException ignored) {
+                // tenta getPago()
+                try {
+                    paga = (boolean) Locacao.class.getMethod("getPago").invoke(loc);
+                } catch (Exception ignored2) {
+                    paga = false;
+                }
+            } catch (Exception e) {
+                paga = false;
+            }
+
+            if (paga) {
+                return loc.getMultaCobrada(); // somente multa pendente
+            } else {
+                // soma valor da locação + multa
+                return loc.getValorCobrado().add(loc.getMultaCobrada() != null ? loc.getMultaCobrada() : java.math.BigDecimal.ZERO);
+            }
+        } catch (Exception e) {
+            // fallback: não conseguir calcular, retorna null
+            return null;
+        }
+    }
 }
