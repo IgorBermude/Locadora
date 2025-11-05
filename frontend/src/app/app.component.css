@@ -23,6 +23,7 @@ h1 {
 nav {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
 }
@@ -106,7 +107,8 @@ li button:last-of-type {
 }
 
 /* Botão de criar novo */
-div[ngSwitchCase] > button {
+div[ngSwitchCase] > button,
+.novo-btn {
   margin-bottom: 15px;
   padding: 10px 20px;
   border-radius: 5px;
@@ -118,7 +120,8 @@ div[ngSwitchCase] > button {
   transition: all 0.2s ease-in-out;
 }
 
-div[ngSwitchCase] > button:hover {
+div[ngSwitchCase] > button:hover,
+.novo-btn:hover {
   background: #732d91;
   transform: scale(1.05);
 }
@@ -151,7 +154,8 @@ form button:hover {
   background: #2980b9;
 }
 
-.novo-btn {
+/* Classes adicionais para abas novas - Clientes, Sócios, Dependentes, Locações */
+.acao-novo {
   margin-bottom: 15px;
   padding: 10px 20px;
   border-radius: 5px;
@@ -163,12 +167,12 @@ form button:hover {
   transition: all 0.2s ease-in-out;
 }
 
-.novo-btn:hover {
+.acao-novo:hover {
   background: #732d91;
   transform: scale(1.05);
 }
 
 .acoes {
-  display: inline-flex; 
-  gap: 5px;             
+  display: inline-flex;
+  gap: 5px;
 }

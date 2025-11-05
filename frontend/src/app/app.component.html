@@ -6,6 +6,10 @@
   <button (click)="aba='diretores'">Diretores</button>
   <button (click)="aba='titulos'">Títulos</button>
   <button (click)="aba='itens'">Itens</button>
+  <button (click)="aba='clientes'">Clientes</button>
+  <button (click)="aba='socios'">Sócios</button>
+  <button (click)="aba='dependentes'">Dependentes</button>
+  <button (click)="aba='locacoes'">Locações</button>
 </nav>
 
 <div [ngSwitch]="aba">
@@ -81,6 +85,69 @@
         <span class="acoes">
           <button (click)="alterarItem(i)">Alterar</button>
           <button (click)="excluirItem(i.idItem)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Clientes -->
+  <div *ngSwitchCase="'clientes'">
+    <h2>Clientes</h2>
+    <button class="novo-btn" (click)="novoCliente()">Novo Cliente</button>
+    <ul>
+      <li *ngFor="let c of clientes">
+        {{ c.nome }} - Inscrição: {{ c.numInscricao }} - Nasc.: {{ c.dtNascimento }} - Sexo: {{ c.sexo }} - Ativo: {{
+        c.estahAtivo }}
+        <span class="acoes">
+          <button (click)="alterarCliente(c)">Alterar</button>
+          <button (click)="excluirCliente(c.idCliente)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Sócios -->
+  <div *ngSwitchCase="'socios'">
+    <h2>Sócios</h2>
+    <button class="novo-btn" (click)="novoSocio()">Novo Sócio</button>
+    <ul>
+      <li *ngFor="let s of socios">
+        Cliente: {{ s.cliente?.nome }} - Plano: {{ s.plano }} - Início: {{ s.dataInicio }}
+        <span class="acoes">
+          <button (click)="alterarSocio(s)">Alterar</button>
+          <button (click)="excluirSocio(s.idSocio)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Dependentes -->
+  <div *ngSwitchCase="'dependentes'">
+    <h2>Dependentes</h2>
+    <button class="novo-btn" (click)="novoDependente()">Novo Dependente</button>
+    <ul>
+      <li *ngFor="let d of dependentes">
+        {{ d.cliente?.nome }} - Sócio: {{ d.socio?.cliente?.nome }} - Parentesco: {{ d.parentesco }}
+        <span class="acoes">
+          <button (click)="alterarDependente(d)">Alterar</button>
+          <button (click)="excluirDependente(d.idDependente)">Excluir</button>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Locações -->
+  <div *ngSwitchCase="'locacoes'">
+    <h2>Locações</h2>
+    <button class="novo-btn" (click)="novaLocacao()">Nova Locação</button>
+    <ul>
+      <li *ngFor="let l of locacoes">
+        Cliente: {{ l.cliente?.nome }} - Item: {{ l.item?.numeroSerie }} - Locação: {{ l.dataLocacao }} - Prev.
+        Devolução: {{ l.dataDevolucaoPrevista }}
+        <span *ngIf="l.dataDevolucaoReal"> - Devolução Real: {{ l.dataDevolucaoReal }}</span>
+        <span class="acoes">
+          <button (click)="alterarLocacao(l)">Alterar</button>
+          <button (click)="excluirLocacao(l.idLocacao)">Excluir</button>
         </span>
       </li>
     </ul>
