@@ -3,6 +3,7 @@ package com.example.DevWeb2.service;
 import com.example.DevWeb2.domain.Cliente;
 import com.example.DevWeb2.domain.Dependente;
 import com.example.DevWeb2.domain.Socio;
+import com.example.DevWeb2.exception.NotFoundException;
 import com.example.DevWeb2.repository.ClienteRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class DependenteService {
         Socio socio = clienteRepository.findById(socioId)
                 .filter(c -> c instanceof Socio)
                 .map(c -> (Socio) c)
-                .orElseThrow(() -> new IllegalArgumentException("Sócio não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Sócio não encontrado"));
 
         long ativos = socio.getDependentes() == null ? 0 : socio.getDependentes().stream().filter(Dependente::isEstahAtivo).count();
         if (ativos >= 3) {
@@ -79,7 +80,7 @@ public class DependenteService {
         Dependente existente = clienteRepository.findById(novo.getIdCliente())
                 .filter(c -> c instanceof Dependente)
                 .map(c -> (Dependente) c)
-                .orElseThrow(() -> new IllegalArgumentException("Dependente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Dependente não encontrado"));
 
         return (Dependente) clienteRepository.save(novo);
     }
@@ -89,7 +90,7 @@ public class DependenteService {
         Dependente dep = clienteRepository.findById(id)
                 .filter(c -> c instanceof Dependente)
                 .map(c -> (Dependente) c)
-                .orElseThrow(() -> new IllegalArgumentException("Dependente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Dependente não encontrado"));
 
         if (dep.getLocacaoes() != null && !dep.getLocacaoes().isEmpty()) {
             throw new DataIntegrityViolationException("Não é permitida a exclusão de um cliente que possui locações");

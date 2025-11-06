@@ -4,6 +4,7 @@ import com.example.DevWeb2.domain.Cliente;
 import com.example.DevWeb2.domain.Dependente;
 import com.example.DevWeb2.domain.Socio;
 import com.example.DevWeb2.domain.Titulo;
+import com.example.DevWeb2.exception.NotFoundException;
 import com.example.DevWeb2.repository.ClienteRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class ClienteService {
     @Transactional
     public void deletar(Long id) {
         Cliente cliente = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
         if (cliente.getLocacaoes() != null && !cliente.getLocacaoes().isEmpty()) {
             throw new DataIntegrityViolationException("Não é permitida a exclusão de um cliente que possui locações");
         }
@@ -54,14 +55,14 @@ public class ClienteService {
             throw new IllegalArgumentException("Cliente inválido para alteração");
         }
         Cliente existente = repository.findById(novo.getIdCliente())
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
 
         return repository.save(novo);
     }
 
     @Transactional
     public void desativarCliente(Long id) {
-        Cliente cliente = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        Cliente cliente = repository.findById(id).orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
         if(!cliente.isEstahAtivo()){
             throw new IllegalArgumentException("Cliente já está desativado");
         }
@@ -88,7 +89,7 @@ public class ClienteService {
 
     @Transactional
     public void reativarCliente(Long id) {
-        Cliente cliente = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+        Cliente cliente = repository.findById(id).orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
         if(cliente.isEstahAtivo()){
             throw new IllegalArgumentException("Cliente já está ativo");
         }
@@ -134,7 +135,7 @@ public class ClienteService {
             throw new IllegalArgumentException("ID do cliente não pode ser nulo");
         }
         Cliente cliente = repository.findById(idCliente)
-                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
 
         return repository.consultarTitulosPorCliente(cliente.getIdCliente());
     }

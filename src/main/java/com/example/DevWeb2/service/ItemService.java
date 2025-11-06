@@ -1,6 +1,7 @@
 package com.example.DevWeb2.service;
 
 import com.example.DevWeb2.domain.Item;
+import com.example.DevWeb2.exception.NotFoundException;
 import com.example.DevWeb2.repository.ItemRepository;
 import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,7 +40,7 @@ public class ItemService {
 
     @Transactional
     public void deletar(Long id){
-        Item item = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Item não encontrado"));
+        Item item = repository.findById(id).orElseThrow(() -> new NotFoundException("Item não encontrado"));
         if (possuiLocacoes(item.getIdItem())) {
             throw new DataIntegrityViolationException("Não é permitida a exclusão de um item que possua locações");
         }
@@ -64,7 +65,7 @@ public class ItemService {
 
     public Item alterar(@Valid Item item) {
         Item existente = repository.findById(item.getIdItem())
-                .orElseThrow(() -> new IllegalArgumentException("Item não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Item não encontrado"));
 
         validar(item);
 

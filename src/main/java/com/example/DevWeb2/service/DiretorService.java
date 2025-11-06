@@ -1,6 +1,7 @@
 package com.example.DevWeb2.service;
 
 import com.example.DevWeb2.domain.Diretor;
+import com.example.DevWeb2.exception.NotFoundException;
 import com.example.DevWeb2.repository.DiretorRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class DiretorService {
     @Transactional
     public void deletar(Long id) {
         Diretor diretor = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Diretor não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Diretor não encontrado"));
         if (diretor.getTitulos() != null && !diretor.getTitulos().isEmpty()) {
             throw new DataIntegrityViolationException("Não é permitida a exclusão de um diretor relacionado a títulos");
         }

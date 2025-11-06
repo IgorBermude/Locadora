@@ -3,11 +3,17 @@ package com.example.DevWeb2.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.constraints.*;
+
 public class ClienteDTO {
     private Long idCliente;
+    @Positive(message = "numInscricao deve ser positivo")
     private int numInscricao;
+    @NotBlank(message = "nome é obrigatório")
     private String nome;
+    @NotNull(message = "dtNascimento é obrigatória")
     private LocalDate dtNascimento;
+    @NotBlank(message = "sexo é obrigatório")
     private String sexo;
     private boolean estahAtivo;
     private List<Long> locacaoIds; // resumo: ids das locações

@@ -2,8 +2,14 @@ package com.example.DevWeb2.dto;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
 public class SocioDTO extends ClienteDTO {
+    @NotBlank(message = "cpf é obrigatório")
+    @Pattern(regexp = "^[0-9]{6,14}$", message = "cpf deve conter apenas dígitos")
     private String cpf;
+    @NotBlank(message = "tel é obrigatório")
     private String tel;
     private List<Long> dependenteIds;
 
