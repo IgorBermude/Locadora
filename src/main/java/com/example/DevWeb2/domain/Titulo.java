@@ -1,9 +1,8 @@
 package com.example.DevWeb2.domain;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -26,8 +25,8 @@ public class Titulo {
     @JoinColumn(name = "diretor_id", nullable = false)
     private Diretor diretor;
 
-    @ManyToMany(mappedBy = "titulos")
-    private List<Ator> atores = new ArrayList<>();
+    @ManyToMany(mappedBy = "titulos", fetch = FetchType.LAZY)
+    private Set<Ator> atores = new HashSet<>();
 
     @OneToMany(mappedBy = "titulo")
     @JsonIgnore
@@ -40,7 +39,7 @@ public class Titulo {
         this.nome = nome;
     }
 
-    public Titulo(Long idTitulo, String nome, List<Ator> atores) {
+    public Titulo(Long idTitulo, String nome, Set<Ator> atores) {
         this.idTitulo = idTitulo;
         this.nome = nome;
         if (atores != null) this.atores = atores;
@@ -52,8 +51,8 @@ public class Titulo {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
-    public List<Ator> getAtores() { return atores; }
-    public void setAtores(List<Ator> atores) { this.atores = atores; }
+    public Set<Ator> getAtores() { return atores; }
+    public void setAtores(Set<Ator> atores) { this.atores = atores; }
 
     public Classe getClasse() { return classe; }
     public void setClasse(Classe classe) { this.classe = classe; }
@@ -63,4 +62,14 @@ public class Titulo {
 
     public Set<Item> getItens() { return itens; }
     public void setItens(Set<Item> itens) { this.itens = itens; }
+
+    public void addAtor(Ator ator) {
+        if (ator == null) return;
+        ator.addTitulo(this); // delega ao lado dono
+    }
+
+    public void removeAtor(Ator ator) {
+        if (ator == null) return;
+        ator.removeTitulo(this); // delega ao lado dono
+    }
 }

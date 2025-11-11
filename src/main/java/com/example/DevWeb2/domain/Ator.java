@@ -1,8 +1,8 @@
 package com.example.DevWeb2.domain;
 
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "atores")
@@ -14,13 +14,13 @@ public class Ator {
     @Column(nullable = false, length = 120)
     private String nome;
 
-    @ManyToMany
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @JoinTable(
             name = "ator_titulo",
             joinColumns = @JoinColumn(name = "ator_id"),
             inverseJoinColumns = @JoinColumn(name = "titulo_id")
     )
-    private List<Titulo> titulos = new ArrayList<>();
+    private Set<Titulo> titulos = new HashSet<>();
 
     public Ator() {}
 
@@ -29,28 +29,36 @@ public class Ator {
         this.nome = nome;
     }
 
-    public Ator(Long idAtor, String nome, List<Titulo> titulos) {
+    public Ator(Long idAtor, String nome, Set<Titulo> titulos) {
         this.idAtor = idAtor;
         this.nome = nome;
         this.titulos = titulos;
     }
 
-    // Métodos anteriores (compatibilidade)
+    public void addTitulo(Titulo titulo) {
+        if (titulo == null) return;
+        if (this.titulos.add(titulo)) {
+            titulo.getAtores().add(this);
+        }
+    }
+
+    public void removeTitulo(Titulo titulo) {
+        if (titulo == null) return;
+        if (this.titulos.remove(titulo)) {
+            titulo.getAtores().remove(this);
+        }
+    }
+
+    // Expor idAtor para serialização/desserialização JSON
+    public Long getIdAtor() { return idAtor; }
+    public void setIdAtor(Long idAtor) { this.idAtor = idAtor; }
+
+    // Métodos anteriores (compatibilidade interna)
     public Long getId() { return idAtor; }
     public void setId(Long id) { this.idAtor = id; }
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
-    public List<Titulo> getTitulos() { return titulos; }
-    public void setTitulos(List<Titulo> titulos) { this.titulos = titulos; }
-
-    public void addTitulo(Titulo titulo){
-        if(!this.titulos.contains(titulo)){
-            this.titulos.add(titulo);
-        }
-        if(!titulo.getAtores().contains(this)){
-            titulo.getAtores().add(this);
-        }
-    }
+    public Set<Titulo> getTitulos() { return titulos; }
 }
