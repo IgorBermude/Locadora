@@ -1,0 +1,64 @@
+<div class="crud-container">
+  <h2>Gerenciamento de Sócios</h2>
+
+  <div class="toolbar">
+    <p-button label="Novo Sócio" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
+  </div>
+
+  <p-table [value]="socios" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>CPF</th>
+        <th>Telefone</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-socio>
+      <tr>
+        <td>{{socio.idSocio}}</td>
+        <td>{{socio.nome}}</td>
+        <td>{{socio.cpf}}</td>
+        <td>{{socio.tel}}</td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
+            (click)="abrirDialog(socio)"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(socio)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog header="{{editingSocio ? 'Editar Sócio' : 'Novo Sócio'}}" [(visible)]="displayDialog" [modal]="true"
+    [closable]="true">
+    <form [formGroup]="socioForm" (ngSubmit)="salvar()">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" pInputText formControlName="nome">
+        </div>
+
+        <div class="p-field">
+          <label for="cpf">CPF</label>
+          <input id="cpf" type="text" pInputText formControlName="cpf">
+        </div>
+
+        <div class="p-field">
+          <label for="tel">Telefone</label>
+          <input id="tel" type="text" pInputText formControlName="tel">
+        </div>
+      </div>
+
+      <p-footer>
+        <div class="footer-buttons">
+          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
+          </p-button>
+
+          <p-button label="Salvar" icon="pi pi-check" type="submit">
+          </p-button>
+        </div>
+      </p-footer>
+    </form>
+  </p-dialog>
+</div>

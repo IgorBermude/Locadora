@@ -1,0 +1,1 @@
+{"ast":null,"code":"export default function pathKey(options = {}) {\n  const {\n    env = process.env,\n    platform = process.platform\n  } = options;\n  if (platform !== 'win32') {\n    return 'PATH';\n  }\n  return Object.keys(env).reverse().find(key => key.toUpperCase() === 'PATH') || 'Path';\n}","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

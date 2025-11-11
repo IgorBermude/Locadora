@@ -1,0 +1,79 @@
+<div class="crud-container">
+  <h2>Gerenciamento de Locações</h2>
+
+  <div class="toolbar">
+    <p-button label="Nova Locação" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
+  </div>
+
+  <p-table [value]="locacoes" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Item</th>
+        <th>Data da Locação</th>
+        <th>Data de Devolução</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-locacao>
+      <tr>
+        <td>{{locacao.idLocacao}}</td>
+        <td>{{getNomeCliente(locacao.clienteId)}}</td>
+        <td>{{getItemSerie(locacao.itemId)}}</td>
+        <td>{{locacao.dataLocacao}}</td>
+        <td>{{locacao.dataDevolucao}}</td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
+            (click)="abrirDialog(locacao)"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(locacao)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Dialog para criar/editar locações -->
+  <p-dialog header="{{editingLocacao ? 'Editar Locação' : 'Nova Locação'}}" [(visible)]="displayDialog" [modal]="true"
+    [closable]="true">
+    <form [formGroup]="locacaoForm" (ngSubmit)="salvar()">
+      <div class="p-fluid">
+
+        <div class="p-field">
+          <label for="cliente">Cliente</label>
+          <p-dropdown id="cliente" [options]="clientes" optionLabel="nome" optionValue="idCliente"
+            formControlName="clienteId" placeholder="Selecione um cliente">
+          </p-dropdown>
+        </div>
+
+        <div class="p-field">
+          <label for="item">Item</label>
+          <p-dropdown id="item" [options]="itens" optionLabel="numeroSerie" optionValue="idItem"
+            formControlName="itemId" placeholder="Selecione um item">
+          </p-dropdown>
+        </div>
+
+        <div class="p-field">
+          <label for="dataLocacao">Data da Locação</label>
+          <input id="dataLocacao" type="date" pInputText formControlName="dataLocacao">
+        </div>
+
+        <div class="p-field">
+          <label for="dataDevolucao">Data de Devolução</label>
+          <input id="dataDevolucao" type="date" pInputText formControlName="dataDevolucao">
+        </div>
+
+      </div>
+
+      <p-footer>
+        <div class="footer-buttons">
+          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
+          </p-button>
+
+          <p-button label="Salvar" icon="pi pi-check" type="submit">
+          </p-button>
+        </div>
+      </p-footer>
+    </form>
+  </p-dialog>
+</div>

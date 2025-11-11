@@ -1,7 +1,7 @@
-// src/app/services/cliente.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Cliente } from '../models/cliente.model';
 
 @Injectable({
@@ -13,22 +13,31 @@ export class ClienteService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(this.apiUrl);
+    return this.http.get<Cliente[]>(this.apiUrl).pipe(catchError(this.handleError));
   }
 
   getById(id: number): Observable<Cliente> {
-    return this.http.get<Cliente>(`${this.apiUrl}/${id}`);
+    return this.http.get<Cliente>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
   }
 
   create(cliente: Cliente): Observable<Cliente> {
-    return this.http.post<Cliente>(this.apiUrl, cliente);
+    return this.http.post<Cliente>(this.apiUrl, cliente).pipe(catchError(this.handleError));
   }
 
   update(cliente: Cliente): Observable<Cliente> {
-    return this.http.put<Cliente>(`${this.apiUrl}/${cliente.idCliente}`, cliente);
+    return this.http.put<Cliente>(`${this.apiUrl}/${cliente.idCliente}`, cliente).pipe(catchError(this.handleError));
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    console.error('Erro em ClienteService:', error);
+    let msg = 'Erro ao processar a solicitação de Cliente.';
+    if (error.error instanceof ErrorEvent) msg = `Erro no cliente: ${error.error.message}`;
+    else if (error.status === 0) msg = 'Falha de conexão com o servidor.';
+    else msg = `Erro ${error.status}: ${error.message}`;
+    return throwError(() => new Error(msg));
   }
 }

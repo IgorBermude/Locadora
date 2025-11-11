@@ -1,0 +1,1 @@
+{"ast":null,"code":"export class AppComponent {\n  teste() {\n    alert('Botão clicado!');\n  }\n}","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

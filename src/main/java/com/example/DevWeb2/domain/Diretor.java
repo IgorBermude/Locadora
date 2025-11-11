@@ -17,10 +17,10 @@ public class Diretor {
     @Column(nullable = false)
     private String nome;
 
-    @OneToMany(mappedBy = "diretor")
-    @JsonIgnore // 👈 evita recursão infinita no JSON
+    @OneToMany(mappedBy = "diretor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore 
     private List<Titulo> titulos = new ArrayList<>();
-
+    
     public Diretor() {
     }
 

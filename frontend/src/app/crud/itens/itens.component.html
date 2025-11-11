@@ -1,0 +1,77 @@
+<div class="crud-container">
+  <h2>Gerenciamento de Itens</h2>
+  <div class="toolbar">
+    <p-button label="Novo Item" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
+  </div>
+
+  <p-table [value]="itens" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Número de Série</th>
+        <th>Tipo</th>
+        <th>Data de Aquisição</th>
+        <th>Título</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.idItem }}</td>
+        <td>{{ item.numeroSerie }}</td>
+        <td>{{ item.tipoItem }}</td>
+        <td>{{ item.dataAquisicao | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ getNomeTitulo(item.tituloId) }}</td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="abrirDialog(item)">
+          </p-button>
+
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(item)">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog [header]="itemForm.value.idItem ? 'Editar Item' : 'Novo Item'" [(visible)]="displayDialog" [modal]="true"
+    [closable]="true" style="width: 400px;">
+
+    <form [formGroup]="itemForm" (ngSubmit)="salvar()">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="numeroSerie">Número de Série</label>
+          <input id="numeroSerie" type="text" pInputText formControlName="numeroSerie" />
+        </div>
+
+        <div class="p-field">
+          <label for="tipoItem">Tipo de Item</label>
+          <input id="tipoItem" type="text" pInputText formControlName="tipoItem" />
+        </div>
+
+        <div class="p-field">
+          <label for="dataAquisicao">Data de Aquisição</label>
+          <input id="dataAquisicao" type="date" pInputText formControlName="dataAquisicao">
+        </div>
+
+        <div class="p-field">
+          <label for="titulo">Título</label>
+          <p-dropdown id="titulo" [options]="titulos" optionLabel="nome" optionValue="idTitulo"
+            formControlName="tituloId" placeholder="Selecione um título" appendTo="body">
+          </p-dropdown>
+        </div>
+      </div>
+
+      <p-footer>
+        <div class="footer-buttons">
+          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
+          </p-button>
+
+          <p-button label="Salvar" icon="pi pi-check" type="submit">
+          </p-button>
+        </div>
+      </p-footer>
+    </form>
+  </p-dialog>
+
+</div>

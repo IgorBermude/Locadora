@@ -1,0 +1,1 @@
+{"ast":null,"code":"export { getStreamAsArray } from './array.js';\nexport { getStreamAsArrayBuffer } from './array-buffer.js';\nexport { getStreamAsBuffer } from './buffer.js';\nexport { getStreamAsString as default } from './string.js';\nexport { MaxBufferError } from './contents.js';","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

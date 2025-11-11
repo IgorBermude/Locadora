@@ -1,22 +1,68 @@
+// app.module.ts ou outro módulo específico
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms'; // para ngModel
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+// PrimeNG Modules
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { ToastModule } from 'primeng/toast';
+import { SidebarModule } from 'primeng/sidebar';
+import { ReactiveFormsModule } from '@angular/forms';
+import { PanelMenuModule } from 'primeng/panelmenu';
+import { AppRoutingModule } from './app-routing.module'; 
 import { HttpClientModule } from '@angular/common/http';
+import { MultiSelectModule } from 'primeng/multiselect';
+
 
 import { AppComponent } from './app.component';
-import { AtorComponent } from './components/ator.component';
-import { ReactiveFormsModule } from '@angular/forms';
-// importar outros componentes...
+import { DiretoresComponent } from './crud/diretores/diretores.component';
+import { ItensComponent } from './crud/itens/itens.component';
+import { LocacoesComponent } from './crud/locacoes/locacoes.component';
+import { SociosComponent } from './crud/socios/socios.component';
+import { ClientesComponent } from './crud/clientes/clientes.component';
+import { DependentesComponent } from './crud/dependentes/dependentes.component';
+import { AtoresComponent } from './crud/atores/atores.component';
+import { ClassesComponent } from './crud/classes/classes.component';
+import { TitulosComponent } from './crud/titulos/titulos.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AtorComponent,
-    // outros componentes
+    AtoresComponent,
+    DiretoresComponent,
+    ClientesComponent,
+    SociosComponent,
+    DependentesComponent,
+    LocacoesComponent,
+    ItensComponent,
+    ClassesComponent,
+    TitulosComponent
   ],
   imports: [
     BrowserModule,
-    HttpClientModule, // importante para serviços que fazem HTTP
-    ReactiveFormsModule
+    BrowserAnimationsModule, // obrigatório para PrimeNG
+    FormsModule,             // obrigatório para ngModel
+
+    // módulos do PrimeNG
+    TableModule,
+    DialogModule,
+    ReactiveFormsModule,
+    ButtonModule,
+    SidebarModule,
+    PanelMenuModule,
+    InputTextModule,
+    HttpClientModule,
+    DropdownModule,
+    MultiSelectModule,
+    CalendarModule,
+    ToastModule,
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]

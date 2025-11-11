@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { Titulo } from '../models/titulo.model';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,25 +10,34 @@ import { Titulo } from '../models/titulo.model';
 export class TituloService {
   private apiUrl = 'http://localhost:8080/api/titulos';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getAll(): Observable<Titulo[]> {
-    return this.http.get<Titulo[]>(this.apiUrl);
+  getTitulos(): Observable<Titulo[]> {
+    return this.http.get<Titulo[]>(this.apiUrl).pipe(
+      catchError(err => {
+        console.error('Erro ao carregar títulos:', err);
+        return throwError(() => new Error('Falha ao carregar títulos.'));
+      })
+    );
   }
 
-  getById(id: number): Observable<Titulo> {
-    return this.http.get<Titulo>(`${this.apiUrl}/${id}`);
+  addTitulo(titulo: any): Observable<Titulo> {
+    const headers = { 'Content-Type': 'application/json' };
+    return this.http.post<Titulo>(this.apiUrl, titulo, { headers });
   }
 
-  create(titulo: Titulo): Observable<Titulo> {
-    return this.http.post<Titulo>(this.apiUrl, titulo);
+  updateTitulo(titulo: any): Observable<Titulo> {
+    const headers = { 'Content-Type': 'application/json' };
+    return this.http.put<Titulo>(`${this.apiUrl}/${titulo.idTitulo}`, titulo, { headers });
   }
 
-  update(titulo: Titulo): Observable<Titulo> {
-    return this.http.put<Titulo>(`${this.apiUrl}/${titulo.idTitulo}`, titulo);
-  }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteTitulo(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError(err => {
+        console.error('Erro ao excluir título:', err);
+        return throwError(() => new Error('Falha ao excluir título.'));
+      })
+    );
   }
 }

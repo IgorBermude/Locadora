@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const createDeferred = () => {\n  const methods = {};\n  const promise = new Promise((resolve, reject) => {\n    Object.assign(methods, {\n      resolve,\n      reject\n    });\n  });\n  return Object.assign(promise, methods);\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

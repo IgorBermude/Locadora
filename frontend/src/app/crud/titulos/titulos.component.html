@@ -1,0 +1,97 @@
+<div class="crud-container">
+  <h2>Gerenciamento de Títulos</h2>
+
+  <div class="toolbar">
+    <p-button label="Novo Título" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
+  </div>
+
+  <p-table [value]="titulos" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Classe</th>
+        <th>Diretor</th>
+        <th>Atores</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-titulo>
+      <tr>
+        <td>{{ titulo.idTitulo }}</td>
+        <td>{{ titulo.nome }}</td>
+        <td>{{ titulo.classe?.nome }}</td>
+        <td>{{ titulo.diretor?.nome }}</td>
+        <td>{{ getNomesAtores(titulo) }}</td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
+                    (click)="abrirDialog(titulo)"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                    (click)="excluir(titulo)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog header="{{ updateTitulo ? 'Editar Título' : 'Novo Título' }}"
+            [(visible)]="displayDialog" [modal]="true" [closable]="true">
+    <form [formGroup]="tituloForm" (ngSubmit)="salvar()">
+      <div class="p-fluid">
+
+        <div class="p-field">
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" pInputText formControlName="nome" />
+        </div>
+
+        <div class="p-field">
+          <label for="classe">Classe</label>
+          <p-dropdown 
+            id="classe"
+            [options]="classes"
+            optionLabel="nome"
+            formControlName="classe"
+            placeholder="Selecione uma classe"
+            appendTo="body">
+          </p-dropdown>
+        </div>
+
+        <div class="p-field">
+          <label for="diretor">Diretor</label>
+          <p-dropdown 
+            id="diretor"
+            [options]="diretores"
+            optionLabel="nome"
+            formControlName="diretor"
+            placeholder="Selecione um diretor"
+            appendTo="body">
+          </p-dropdown>
+        </div>
+
+        <!-- Campo de múltipla seleção de atores -->
+        <div class="p-field">
+          <label for="atores">Atores</label>
+          <p-multiSelect
+            id="atores"
+            [options]="atores"
+            optionLabel="nome"
+            formControlName="atores"
+            placeholder="Selecione os atores"
+            display="chip"
+            appendTo="body">
+          </p-multiSelect>
+        </div>
+
+      </div>
+
+      <p-footer>
+        <div class="footer-buttons">
+          <p-button label="Cancelar" icon="pi pi-times"
+                    (click)="displayDialog = false" class="p-button-text">
+          </p-button>
+
+          <p-button label="Salvar" icon="pi pi-check" type="submit"></p-button>
+        </div>
+      </p-footer>
+    </form>
+  </p-dialog>
+</div>

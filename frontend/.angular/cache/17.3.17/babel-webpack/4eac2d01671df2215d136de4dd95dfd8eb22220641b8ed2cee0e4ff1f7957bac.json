@@ -1,0 +1,1 @@
+{"ast":null,"code":"const logSymbols = {\n  info: 'ℹ️',\n  success: '✅',\n  warning: '⚠️',\n  error: '❌️'\n};\nexport default logSymbols;","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

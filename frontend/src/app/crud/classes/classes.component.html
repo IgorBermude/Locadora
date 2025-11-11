@@ -1,0 +1,64 @@
+<div class="crud-container">
+  <h2>Gerenciamento de Classes</h2>
+
+  <div class="toolbar">
+    <p-button label="Nova Classe" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
+  </div>
+
+  <p-table [value]="classes" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Valor</th>
+        <th>Data de Devolução</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-classe>
+      <tr>
+        <td>{{classe.idClasse}}</td>
+        <td>{{classe.nome}}</td>
+        <td>{{classe.valor | currency:'BRL'}}</td>
+        <td>{{classe.dataDevolucao}}</td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
+            (click)="abrirDialog(classe)"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(classe)"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog header="{{editingClasse ? 'Editar Classe' : 'Nova Classe'}}" [(visible)]="displayDialog" [modal]="true"
+    [closable]="true">
+    <form [formGroup]="classeForm" (ngSubmit)="salvar()">
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="nome">Nome</label>
+          <input id="nome" type="text" pInputText formControlName="nome">
+        </div>
+
+        <div class="p-field">
+          <label for="valor">Valor (R$)</label>
+          <input id="valor" type="number" pInputText formControlName="valor">
+        </div>
+
+        <div class="p-field">
+          <label for="dataDevolucao">Data de Devolução</label>
+          <input id="dataDevolucao" type="date" pInputText formControlName="dataDevolucao">
+        </div>
+      </div>
+
+      <p-footer>
+        <div class="footer-buttons">
+          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
+          </p-button>
+
+          <p-button label="Salvar" icon="pi pi-check" type="submit">
+          </p-button>
+        </div>
+      </p-footer>
+    </form>
+  </p-dialog>
+</div>

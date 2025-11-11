@@ -1,0 +1,6 @@
+.footer-buttons {
+  display: flex;
+  justify-content: center; /* centraliza os botões */
+  gap: 1rem;               /* espaço entre eles */
+  margin-top: 1rem;        /* espaço acima */
+}
