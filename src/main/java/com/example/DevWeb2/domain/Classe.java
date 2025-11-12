@@ -2,6 +2,7 @@ package com.example.DevWeb2.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import java.util.Set;
     generator = ObjectIdGenerators.PropertyGenerator.class,
     property = "idClasse"
 )
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Classe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

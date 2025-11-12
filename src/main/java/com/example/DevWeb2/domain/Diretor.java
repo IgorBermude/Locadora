@@ -1,6 +1,7 @@
 package com.example.DevWeb2.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "diretores")
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 public class Diretor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

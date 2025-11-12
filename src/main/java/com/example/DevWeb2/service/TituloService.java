@@ -21,7 +21,24 @@ public class TituloService {
 
     public List<Titulo> listar(){ return repository.findAll(); }
     public Optional<Titulo> pesquisar(Long id){ return repository.findById(id); }
-    public void deletar(Long id){ repository.deleteById(id); }
+
+    // Corrigido: antes de deletar, limpar associações ManyToMany no lado dono (Ator)
+    @Transactional
+    public void deletar(Long id){
+        // busca o título com atores (findByIdWithAtores deve existir em TituloRepository)
+        Titulo titulo = repository.findByIdWithAtores(id)
+                .orElseThrow(() -> new IllegalArgumentException("Título não encontrado: " + id));
+
+        // remove o título de cada ator (manter integridade do join table)
+        for (Ator ator : new HashSet<>(titulo.getAtores())) {
+            ator.removeTitulo(titulo);
+            atorRepository.save(ator);
+        }
+
+        // agora é seguro apagar o título
+        repository.delete(titulo);
+    }
+
     public long count(){ return repository.count(); }
 
     @Transactional
@@ -47,4 +64,3 @@ public class TituloService {
         return salvo;
     }
 }
-
