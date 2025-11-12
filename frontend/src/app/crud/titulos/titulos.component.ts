@@ -87,7 +87,9 @@ export class TitulosComponent implements OnInit {
   salvar() {
     let titulo: Titulo = this.tituloForm.value;
 
+    // Monta o payload incluindo o idTitulo se for update
     const payload = {
+      idTitulo: titulo.idTitulo, // importante para o PUT
       nome: titulo.nome,
       classe: { idClasse: titulo.classe?.idClasse },
       diretor: { idDiretor: titulo.diretor?.idDiretor },
@@ -96,15 +98,16 @@ export class TitulosComponent implements OnInit {
 
     console.log('🟢 Enviando título:', JSON.stringify(payload, null, 2));
 
+    // Decide qual operação chamar: POST ou PUT
     const operacao = this.updateTitulo
-      ? this.tituloService.updateTitulo(payload)
-      : this.tituloService.addTitulo(payload);
+      ? this.tituloService.updateTitulo(payload) // PUT com id
+      : this.tituloService.addTitulo(payload);   // POST sem id
 
     operacao.subscribe({
       next: () => {
         this.showSuccess('Título salvo com sucesso!');
         this.displayDialog = false;
-        this.carregarDados();
+        this.carregarDados(); // atualiza lista
       },
       error: (erro) => {
         console.error('Erro ao salvar:', erro);
@@ -112,6 +115,7 @@ export class TitulosComponent implements OnInit {
       }
     });
   }
+
 
   excluir(titulo: Titulo) {
     this.tituloService.deleteTitulo(titulo.idTitulo!).subscribe({

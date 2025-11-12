@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "atores")
 public class Ator {
@@ -20,6 +24,7 @@ public class Ator {
             joinColumns = @JoinColumn(name = "ator_id"),
             inverseJoinColumns = @JoinColumn(name = "titulo_id")
     )
+    @JsonIgnore
     private Set<Titulo> titulos = new HashSet<>();
 
     public Ator() {}
