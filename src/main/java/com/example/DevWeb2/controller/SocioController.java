@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/socios")
+@CrossOrigin(origins = "http://localhost:4200")
 public class SocioController {
     private final ClienteRepository clienteRepo;
 

@@ -1,6 +1,7 @@
 package com.example.DevWeb2.domain;
 
 import jakarta.persistence.*;
+import jakarta.persistence.PersistenceException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,10 +10,10 @@ import java.util.List;
 @Entity
 @DiscriminatorValue("SOCIO")
 public class Socio extends Cliente{
-    @Column(nullable = false, unique = true, length = 11)
+    @Column(unique = true, length = 11, nullable = true)
     private String cpf;
 
-    @Column(nullable = false, length = 15)
+    @Column(length = 15, nullable = true)
     private String tel;
 
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -51,5 +52,14 @@ public class Socio extends Cliente{
         this.dependentes = dependentes;
     }
 
-
+    @PrePersist
+    @PreUpdate
+    private void validateSocioFields(){
+        if (this.cpf == null || this.cpf.isBlank()) {
+            throw new PersistenceException("Sócio precisa ter CPF válido (não nulo).");
+        }
+        if (this.tel == null || this.tel.isBlank()) {
+            throw new PersistenceException("Sócio precisa ter telefone válido (não nulo).");
+        }
+    }
 }

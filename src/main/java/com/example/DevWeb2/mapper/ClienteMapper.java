@@ -25,17 +25,5 @@ public final class ClienteMapper {
         }
         return dto;
     }
-
-    public static Cliente toDomain(ClienteDTO dto) {
-        if (dto == null) return null;
-        Cliente c = new Cliente();
-        c.setIdCliente(dto.getIdCliente());
-        c.setNome(dto.getNome());
-        c.setNumInscricao(dto.getNumInscricao());
-        c.setDtNascimento(dto.getDtNascimento());
-        c.setSexo(dto.getSexo());
-        c.setEstahAtivo(dto.isEstahAtivo());
-        return c;
-    }
 }
 

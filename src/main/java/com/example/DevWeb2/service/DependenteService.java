@@ -41,13 +41,13 @@ public class DependenteService {
     }
 
     @Transactional
-    public Dependente adicionar(Long socioId, Dependente dependente) {
+    public Dependente adicionar(Long clienteId, Dependente dependente) {
         if (dependente == null || dependente.getNome() == null || dependente.getNome().isBlank()
                 || dependente.getDtNascimento() == null || dependente.getSexo() == null || dependente.getSexo().isBlank()) {
             throw new IllegalArgumentException("Dados do dependente inválidos");
         }
 
-        Socio socio = clienteRepository.findById(socioId)
+        Socio socio = clienteRepository.findById(clienteId)
                 .filter(c -> c instanceof Socio)
                 .map(c -> (Socio) c)
                 .orElseThrow(() -> new NotFoundException("Sócio não encontrado"));

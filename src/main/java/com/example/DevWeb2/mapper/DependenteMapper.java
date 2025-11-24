@@ -16,7 +16,7 @@ public final class DependenteMapper {
         dto.setDtNascimento(d.getDtNascimento());
         dto.setSexo(d.getSexo());
         dto.setEstahAtivo(d.isEstahAtivo());
-        if (d.getSocio() != null) dto.setSocioId(d.getSocio().getIdCliente());
+        if (d.getSocio() != null) dto.setClienteId(d.getSocio().getIdCliente());
         return dto;
     }
 
@@ -33,4 +33,3 @@ public final class DependenteMapper {
         return d;
     }
 }
-

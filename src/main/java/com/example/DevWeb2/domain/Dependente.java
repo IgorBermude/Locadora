@@ -3,12 +3,14 @@ package com.example.DevWeb2.domain;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
+import jakarta.persistence.PersistenceException;
+import org.hibernate.Hibernate;
 
 @Entity
 @DiscriminatorValue("DEPENDENTE")
 public class Dependente extends Cliente{
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "socio_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "socio_id", nullable = true)
     private Socio socio;
 
     public Dependente() {}
@@ -24,5 +26,17 @@ public class Dependente extends Cliente{
 
     public void setSocio(Socio socio) {
         this.socio = socio;
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void validateSocioIsSocio() {
+        if (this.socio == null) {
+            throw new PersistenceException("Dependente precisa referenciar um Socio (socio não pode ser nulo).");
+        }
+        Class<?> actual = Hibernate.getClass(this.socio);
+        if (!Socio.class.equals(actual)) {
+            throw new PersistenceException("O campo `socio` deve referenciar uma entidade do tipo Socio.");
+        }
     }
 }

@@ -47,12 +47,12 @@ public class DependenteController {
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody DependenteDTO dependenteDto) {
-        if (dependenteDto == null || dependenteDto.getSocioId() == null) {
-            return ResponseEntity.badRequest().body("Campo socioId é obrigatório");
+        if (dependenteDto == null || dependenteDto.getClienteId() == null) {
+            return ResponseEntity.badRequest().body("Campo clienteId é obrigatório");
         }
 
-        Long socioId = dependenteDto.getSocioId();
-        Optional<Cliente> opt = clienteRepo.findById(socioId);
+        Long clienteId = dependenteDto.getClienteId();
+        Optional<Cliente> opt = clienteRepo.findById(clienteId);
         if (opt.isEmpty() || !(opt.get() instanceof Socio)) {
             return ResponseEntity.badRequest().body("Sócio informado não encontrado");
         }
@@ -61,7 +61,7 @@ public class DependenteController {
         Dependente dependente = DependenteMapper.toDomain(dependenteDto, socio);
         Dependente saved;
         try {
-            saved = dependenteService.adicionar(socioId, dependente);
+            saved = dependenteService.adicionar(clienteId, dependente);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception ex) {
