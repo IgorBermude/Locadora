@@ -2,6 +2,9 @@ package com.example.DevWeb2.controller;
 
 import com.example.DevWeb2.domain.Item;
 import com.example.DevWeb2.domain.Locacao;
+import com.example.DevWeb2.dto.LocacaoDTO;
+import com.example.DevWeb2.repository.ClienteRepository;
+import com.example.DevWeb2.repository.ItemRepository;
 import com.example.DevWeb2.service.LocacaoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -18,9 +22,13 @@ import java.util.NoSuchElementException;
 @CrossOrigin(origins = "http://localhost:4200")
 public class LocacaoController {
     private final LocacaoService service;
+    private final ClienteRepository clienteRepository;
+    private final ItemRepository itemRepository;
 
-    public LocacaoController(LocacaoService service) {
+    public LocacaoController(LocacaoService service, ClienteRepository clienteRepository, ItemRepository itemRepository) {
         this.service = service;
+        this.clienteRepository = clienteRepository;
+        this.itemRepository = itemRepository;
     }
 
     @GetMapping
@@ -35,14 +43,23 @@ public class LocacaoController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Novo: criar locação (pode enviar um JSON com cliente e item embutidos)
+    // Novo: criar locação usando DTO com ids
     @PostMapping
-    public ResponseEntity<?> criar(@Valid @RequestBody Locacao requisicao) {
+    public ResponseEntity<?> criar(@Valid @RequestBody LocacaoDTO dto) {
         try {
-            Item item = requisicao.getItem();
-            var cliente = requisicao.getCliente();
+            if (dto.getClienteId() == null || dto.getItemId() == null) {
+                return ResponseEntity.badRequest().body(Map.of("erro", "clienteId e itemId são obrigatórios"));
+            }
+
+            Item item = itemRepository.findById(dto.getItemId()).orElse(null);
+            var cliente = clienteRepository.findById(dto.getClienteId()).orElse(null);
+
+            if (item == null) return ResponseEntity.status(404).body(Map.of("erro", "Item não encontrado"));
+            if (cliente == null) return ResponseEntity.status(404).body(Map.of("erro", "Cliente não encontrado"));
+
             service.efetuarNovaLocacao(item, cliente);
-            // não temos o id retornado pelo service atualmente, retornamos 201 Created sem Location
+
+            // retorna 201 Created (Location pode ser melhorada retornando o id criado se service retornar)
             return ResponseEntity.status(201).build();
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
@@ -53,14 +70,33 @@ public class LocacaoController {
         }
     }
 
-    // Novo: alterar locação
+    // Novo: alterar locação usando DTO
     @PutMapping("/{id}")
-    public ResponseEntity<?> alterar(@PathVariable Long id, @Valid @RequestBody Locacao requisicao) {
+    public ResponseEntity<?> alterar(@PathVariable Long id, @Valid @RequestBody LocacaoDTO dto) {
         try {
-            if (requisicao.getIdLocacao() != null && !requisicao.getIdLocacao().equals(id)) {
-                return ResponseEntity.badRequest().body("ID da requisição difere do ID do recurso");
-            }
+            // construir um objeto Locacao parcial para passar ao service
+            Locacao requisicao = new Locacao();
             requisicao.setIdLocacao(id);
+
+            if (dto.getDataLocacao() != null && !dto.getDataLocacao().isBlank()) {
+                requisicao.setDtLocacao(LocalDate.parse(dto.getDataLocacao()));
+            }
+            if (dto.getDataDevolucao() != null && !dto.getDataDevolucao().isBlank()) {
+                requisicao.setDtDevolucaoPrevista(LocalDate.parse(dto.getDataDevolucao()));
+            }
+
+            if (dto.getItemId() != null) {
+                Item item = itemRepository.findById(dto.getItemId()).orElse(null);
+                if (item == null) return ResponseEntity.status(404).body(Map.of("erro", "Item não encontrado"));
+                requisicao.setItem(item);
+            }
+
+            if (dto.getClienteId() != null) {
+                var cliente = clienteRepository.findById(dto.getClienteId()).orElse(null);
+                if (cliente == null) return ResponseEntity.status(404).body(Map.of("erro", "Cliente não encontrado"));
+                requisicao.setCliente(cliente);
+            }
+
             Locacao atualizado = service.alterarLocacao(requisicao);
             return ResponseEntity.ok(atualizado);
         } catch (IllegalArgumentException ex) {

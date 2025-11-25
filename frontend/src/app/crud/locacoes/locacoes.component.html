@@ -57,7 +57,7 @@
       
       <div class="p-field p-col-12">
         <label for="cliente">Cliente *</label>
-        <p-dropdown id="cliente" [options]="clientes" optionLabel="nome" 
+        <p-dropdown id="cliente" [options]="clientes" optionLabel="nome"
                     formControlName="cliente" placeholder="Selecione um cliente"
                     [showClear]="true" [loading]="carregandoClientes" appendTo="body">
           <ng-template pTemplate="empty">
@@ -71,7 +71,7 @@
 
       <div class="p-field p-col-12">
         <label for="item">Item *</label>
-        <p-dropdown id="item" [options]="itens" optionLabel="numeroSerie" 
+        <p-dropdown id="item" [options]="itens" optionLabel="numeroSerie"
                     formControlName="item" placeholder="Selecione um item"
                     [showClear]="true" [loading]="carregandoItens" appendTo="body">
           <ng-template let-item pTemplate="item">

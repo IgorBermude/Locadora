@@ -73,5 +73,18 @@ public class DependenteController {
         return ResponseEntity.created(uri).body(DependenteMapper.toDTO(saved));
     }
 
-
+    @PutMapping("/{id}")
+    public ResponseEntity<DependenteDTO> update(@PathVariable Long id, @Valid @RequestBody DependenteDTO dto) {
+        return clienteRepo.findById(id).filter(c -> c instanceof Dependente).map(existing -> {
+            Dependente d = (Dependente) existing;
+            // aplicar alterações permitidas
+            d.setNome(dto.getNome());
+            d.setDtNascimento(dto.getDtNascimento());
+            d.setSexo(dto.getSexo());
+            d.setEstahAtivo(dto.isEstahAtivo());
+            d.setNumInscricao(dto.getNumInscricao());
+            Dependente updated = (Dependente) clienteRepo.save(d);
+            return ResponseEntity.ok(DependenteMapper.toDTO(updated));
+        }).orElse(ResponseEntity.notFound().build());
+    }
 }

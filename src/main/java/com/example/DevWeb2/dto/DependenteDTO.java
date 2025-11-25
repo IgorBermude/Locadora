@@ -10,4 +10,6 @@ public class DependenteDTO extends ClienteDTO {
 
     public Long getClienteId() { return clienteId; }
     public void setClienteId(Long clienteId) { this.clienteId = clienteId; }
+
+
 }
