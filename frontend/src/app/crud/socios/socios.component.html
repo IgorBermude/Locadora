@@ -1,64 +1,134 @@
 <div class="crud-container">
+  <p-toast></p-toast>
+
   <h2>Gerenciamento de Sócios</h2>
 
-  <div class="toolbar">
+  <div class="toolbar p-mb-3">
     <p-button label="Novo Sócio" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
   </div>
 
-  <p-table [value]="socios" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+  <p-table [value]="socios" [paginator]="true" [rows]="10" [loading]="carregando" [responsiveLayout]="'scroll'">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
+        <th>Inscrição</th>
         <th>Nome</th>
         <th>CPF</th>
         <th>Telefone</th>
-        <th>Ações</th>
+        <th>Sexo</th>
+        <th>Status</th>
+        <th width="120px">Ações</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-socio>
       <tr>
-        <td>{{socio.idSocio}}</td>
+        <td>{{socio.idCliente}}</td>
+        <td>{{socio.numInscricao}}</td>
         <td>{{socio.nome}}</td>
         <td>{{socio.cpf}}</td>
         <td>{{socio.tel}}</td>
+        <td>{{socio.sexo === 'M' ? 'Masculino' : 'Feminino'}}</td>
         <td>
-          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
-            (click)="abrirDialog(socio)"></p-button>
-          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(socio)"></p-button>
+          <span [class]="'p-tag ' + (socio.estahAtivo ? 'p-tag-success' : 'p-tag-danger')">
+            {{socio.estahAtivo ? 'Ativo' : 'Inativo'}}
+          </span>
+        </td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-1" (click)="abrirDialog(socio)"
+            pTooltip="Editar"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(socio)"
+            pTooltip="Excluir"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="p-text-center">
+          <div class="p-p-3">
+            <i class="pi pi-inbox p-mr-2"></i>
+            Nenhum sócio encontrado
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 
-  <p-dialog header="{{editingSocio ? 'Editar Sócio' : 'Novo Sócio'}}" [(visible)]="displayDialog" [modal]="true"
-    [closable]="true">
-    <form [formGroup]="socioForm" (ngSubmit)="salvar()">
-      <div class="p-fluid">
-        <div class="p-field">
-          <label for="nome">Nome</label>
-          <input id="nome" type="text" pInputText formControlName="nome">
-        </div>
+  <p-dialog [header]="(editingSocio ? 'Editar' : 'Novo') + ' Sócio'" [(visible)]="displayDialog" [modal]="true"
+    [style]="{width: '500px'}" (onHide)="displayDialog = false">
 
-        <div class="p-field">
-          <label for="cpf">CPF</label>
-          <input id="cpf" type="text" pInputText formControlName="cpf">
-        </div>
+    <form [formGroup]="socioForm" (ngSubmit)="salvar()" class="p-fluid p-grid p-formgrid">
 
-        <div class="p-field">
-          <label for="tel">Telefone</label>
-          <input id="tel" type="text" pInputText formControlName="tel">
+      <div class="p-field p-col-12">
+        <label for="nome">Nome *</label>
+        <input id="nome" type="text" pInputText formControlName="nome" placeholder="Digite o nome completo"
+          [class]="{'ng-invalid ng-dirty': socioForm.get('nome')?.invalid && socioForm.get('nome')?.touched}">
+        <small *ngIf="socioForm.get('nome')?.invalid && socioForm.get('nome')?.touched" class="p-error">
+          Nome é obrigatório (mínimo 3 caracteres)
+        </small>
+      </div>
+
+      <div class="p-field p-col-6">
+        <label for="numInscricao">Nº Inscrição</label>
+        <input id="numInscricao" type="number" pInputText formControlName="numInscricao" 
+               placeholder="Número de inscrição" readonly>
+        <small class="p-text-secondary">Número gerado automaticamente</small>
+      </div>
+
+      <div class="p-field p-col-6">
+        <label for="sexo">Sexo *</label>
+        <p-dropdown id="sexo" [options]="opcoesSexo" optionLabel="label" optionValue="value" formControlName="sexo"
+          placeholder="Selecione"
+          [class]="{'ng-invalid ng-dirty': socioForm.get('sexo')?.invalid && socioForm.get('sexo')?.touched}">
+        </p-dropdown>
+        <small *ngIf="socioForm.get('sexo')?.invalid && socioForm.get('sexo')?.touched" class="p-error">
+          Sexo é obrigatório
+        </small>
+      </div>
+
+      <div class="p-field p-col-6">
+        <label for="cpf">CPF *</label>
+        <input id="cpf" type="text" pInputText formControlName="cpf" placeholder="000.000.000-00"
+          [class]="{'ng-invalid ng-dirty': socioForm.get('cpf')?.invalid && socioForm.get('cpf')?.touched}">
+        <small *ngIf="socioForm.get('cpf')?.invalid && socioForm.get('cpf')?.touched" class="p-error">
+          CPF é obrigatório (11 dígitos)
+        </small>
+      </div>
+
+      <div class="p-field p-col-6">
+        <label for="tel">Telefone *</label>
+        <input id="tel" type="text" pInputText formControlName="tel" placeholder="(00) 00000-0000"
+          [class]="{'ng-invalid ng-dirty': socioForm.get('tel')?.invalid && socioForm.get('tel')?.touched}">
+        <small *ngIf="socioForm.get('tel')?.invalid && socioForm.get('tel')?.touched" class="p-error">
+          Telefone é obrigatório
+        </small>
+      </div>
+
+      <div class="p-field p-col-12">
+        <label for="dtNascimento">Data de Nascimento *</label>
+        <p-calendar id="dtNascimento" formControlName="dtNascimento" [showIcon]="true" dateFormat="dd/mm/yy"
+          placeholder="dd/mm/aaaa"
+          [class]="{'ng-invalid ng-dirty': socioForm.get('dtNascimento')?.invalid && socioForm.get('dtNascimento')?.touched}">
+        </p-calendar>
+        <small *ngIf="socioForm.get('dtNascimento')?.invalid && socioForm.get('dtNascimento')?.touched" class="p-error">
+          Data de nascimento é obrigatória
+        </small>
+      </div>
+
+      <div class="p-field p-col-12">
+        <div class="p-d-flex p-ai-center">
+          <p-checkbox id="estahAtivo" formControlName="estahAtivo" inputId="estahAtivoCheckbox">
+          </p-checkbox>
+          <label for="estahAtivoCheckbox" class="p-checkbox-label p-ml-2">Sócio ativo</label>
         </div>
       </div>
 
-      <p-footer>
-        <div class="footer-buttons">
-          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
-          </p-button>
-
-          <p-button label="Salvar" icon="pi pi-check" type="submit">
-          </p-button>
-        </div>
-      </p-footer>
     </form>
+
+    <p-footer>
+      <div class="p-d-flex p-jc-between">
+        <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text"></p-button>
+        <p-button label="Salvar" icon="pi pi-check" (click)="salvar()" [disabled]="socioForm.invalid"></p-button>
+      </div>
+    </p-footer>
   </p-dialog>
 </div>

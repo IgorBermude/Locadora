@@ -1,79 +1,110 @@
 <div class="crud-container">
+  <p-toast></p-toast>
+
   <h2>Gerenciamento de Locações</h2>
 
   <div class="toolbar">
     <p-button label="Nova Locação" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
   </div>
 
-  <p-table [value]="locacoes" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+  <p-table [value]="locacoes" [paginator]="true" [rows]="10" [loading]="carregando" [responsiveLayout]="'scroll'">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
         <th>Cliente</th>
         <th>Item</th>
         <th>Data da Locação</th>
-        <th>Data de Devolução</th>
-        <th>Ações</th>
+        <th>Data Devolução Prevista</th>
+        <th>Valor</th>
+        <th width="120px">Ações</th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-locacao>
       <tr>
         <td>{{locacao.idLocacao}}</td>
-        <td>{{getNomeCliente(locacao.clienteId)}}</td>
-        <td>{{getItemSerie(locacao.itemId)}}</td>
-        <td>{{locacao.dataLocacao}}</td>
-        <td>{{locacao.dataDevolucao}}</td>
+        <td>{{locacao.cliente?.nome || '—'}}</td>
+        <td>{{locacao.item?.numeroSerie || '—'}} ({{locacao.item?.tipoItem || '—'}})</td>
+        <td>{{locacao.dtLocacao | date:'dd/MM/yyyy'}}</td>
+        <td>{{locacao.dtDevolucaoPrevista | date:'dd/MM/yyyy'}}</td>
+        <td>R$ {{locacao.valorCobrado || '0.00'}}</td>
         <td>
-          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
-            (click)="abrirDialog(locacao)"></p-button>
-          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(locacao)"></p-button>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-1"
+            (click)="abrirDialog(locacao)" pTooltip="Editar"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger"
+            (click)="excluir(locacao)" pTooltip="Excluir"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="p-text-center">
+          <div class="p-p-3">
+            <i class="pi pi-inbox p-mr-2"></i>
+            Nenhuma locação encontrada
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 
   <!-- Dialog para criar/editar locações -->
-  <p-dialog header="{{editingLocacao ? 'Editar Locação' : 'Nova Locação'}}" [(visible)]="displayDialog" [modal]="true"
-    [closable]="true">
-    <form [formGroup]="locacaoForm" (ngSubmit)="salvar()">
-      <div class="p-fluid">
-
-        <div class="p-field">
-          <label for="cliente">Cliente</label>
-          <p-dropdown id="cliente" [options]="clientes" optionLabel="nome" optionValue="idCliente"
-            formControlName="clienteId" placeholder="Selecione um cliente">
-          </p-dropdown>
-        </div>
-
-        <div class="p-field">
-          <label for="item">Item</label>
-          <p-dropdown id="item" [options]="itens" optionLabel="numeroSerie" optionValue="idItem"
-            formControlName="itemId" placeholder="Selecione um item">
-          </p-dropdown>
-        </div>
-
-        <div class="p-field">
-          <label for="dataLocacao">Data da Locação</label>
-          <input id="dataLocacao" type="date" pInputText formControlName="dataLocacao">
-        </div>
-
-        <div class="p-field">
-          <label for="dataDevolucao">Data de Devolução</label>
-          <input id="dataDevolucao" type="date" pInputText formControlName="dataDevolucao">
-        </div>
-
+  <p-dialog [header]="(editingLocacao ? 'Editar' : 'Nova') + ' Locação'" [(visible)]="displayDialog" [modal]="true"
+    [style]="{width: '500px'}" (onHide)="displayDialog = false">
+    
+    <form [formGroup]="locacaoForm" (ngSubmit)="salvar()" class="p-fluid p-grid p-formgrid">
+      
+      <div class="p-field p-col-12">
+        <label for="cliente">Cliente *</label>
+        <p-dropdown id="cliente" [options]="clientes" optionLabel="nome" 
+                    formControlName="cliente" placeholder="Selecione um cliente"
+                    [showClear]="true" [loading]="carregandoClientes" appendTo="body">
+          <ng-template pTemplate="empty">
+            <div class="p-text-center">Nenhum cliente encontrado</div>
+          </ng-template>
+        </p-dropdown>
+        <small *ngIf="locacaoForm.get('cliente')?.invalid && locacaoForm.get('cliente')?.touched" class="p-error">
+          Cliente é obrigatório
+        </small>
       </div>
 
-      <p-footer>
-        <div class="footer-buttons">
-          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
-          </p-button>
+      <div class="p-field p-col-12">
+        <label for="item">Item *</label>
+        <p-dropdown id="item" [options]="itens" optionLabel="numeroSerie" 
+                    formControlName="item" placeholder="Selecione um item"
+                    [showClear]="true" [loading]="carregandoItens" appendTo="body">
+          <ng-template let-item pTemplate="item">
+            <div>{{item.numeroSerie}} - {{item.tipoItem}}</div>
+          </ng-template>
+          <ng-template pTemplate="empty">
+            <div class="p-text-center">Nenhum item encontrado</div>
+          </ng-template>
+        </p-dropdown>
+        <small *ngIf="locacaoForm.get('item')?.invalid && locacaoForm.get('item')?.touched" class="p-error">
+          Item é obrigatório
+        </small>
+      </div>
 
-          <p-button label="Salvar" icon="pi pi-check" type="submit">
-          </p-button>
-        </div>
-      </p-footer>
+      <div class="p-field p-col-6">
+        <label for="dtLocacao">Data Locação *</label>
+        <input id="dtLocacao" type="date" pInputText formControlName="dtLocacao">
+      </div>
+
+      <div class="p-field p-col-6">
+        <label for="dtDevolucaoPrevista">Devolução Prevista *</label>
+        <input id="dtDevolucaoPrevista" type="date" pInputText formControlName="dtDevolucaoPrevista">
+      </div>
+
     </form>
+
+    <p-footer>
+      <div class="p-d-flex p-jc-between">
+        <p-button label="Cancelar" icon="pi pi-times" 
+                  (click)="displayDialog = false" class="p-button-text"></p-button>
+        <p-button label="Salvar" icon="pi pi-check" 
+                  (click)="salvar()" [disabled]="locacaoForm.invalid"></p-button>
+      </div>
+    </p-footer>
   </p-dialog>
 </div>

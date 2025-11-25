@@ -18,6 +18,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { AppRoutingModule } from './app-routing.module'; 
 import { HttpClientModule } from '@angular/common/http';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { CheckboxModule } from 'primeng/checkbox';
 
 
 import { AppComponent } from './app.component';
@@ -60,6 +61,7 @@ import { TitulosComponent } from './crud/titulos/titulos.component';
     HttpClientModule,
     DropdownModule,
     MultiSelectModule,
+    CheckboxModule,
     CalendarModule,
     ToastModule,
     AppRoutingModule

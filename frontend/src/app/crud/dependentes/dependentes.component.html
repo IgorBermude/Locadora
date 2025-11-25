@@ -1,59 +1,104 @@
 <div class="crud-container">
+  <p-toast></p-toast>
+
   <h2>Gerenciamento de Dependentes</h2>
 
-  <div class="toolbar">
-    <p-button label="Novo Dependente" icon="pi pi-plus" (click)="abrirDialog()"></p-button>
+  <div class="toolbar p-mb-3">
+    <p-button label="Novo Dependente" icon="pi pi-plus" (click)="abrirDialog()"
+      [disabled]="socios.length === 0"></p-button>
+    <small *ngIf="socios.length === 0" class="p-text-warning p-ml-2">
+      Cadastre um sócio primeiro
+    </small>
   </div>
 
-  <p-table [value]="dependentes" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'">
+  <p-table [value]="dependentes" [paginator]="true" [rows]="10" [loading]="carregando" [responsiveLayout]="'scroll'">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
         <th>Nome</th>
+        <th>Sexo</th>
         <th>Sócio</th>
-        <th>Ações</th>
+        <th>Status</th>
+        <th width="120px">Ações</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-dependente>
       <tr>
-        <td>{{dependente.idDependente}}</td>
+        <td>{{dependente.idCliente}}</td>
         <td>{{dependente.nome}}</td>
-        <td>{{getNomeSocio(dependente.socioId)}}</td>
+        <td>{{dependente.sexo === 'M' ? 'Masculino' : 'Feminino'}}</td>
+        <td>{{getNomeSocio(dependente.clienteId || dependente.socioId!)}}</td>
         <td>
-          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
-            (click)="abrirDialog(dependente)"></p-button>
-          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger"
-            (click)="excluir(dependente)"></p-button>
+          <span [class]="'p-tag ' + (dependente.estahAtivo ? 'p-tag-success' : 'p-tag-danger')">
+            {{dependente.estahAtivo ? 'Ativo' : 'Inativo'}}
+          </span>
+        </td>
+        <td>
+          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-1"
+            (click)="abrirDialog(dependente)" pTooltip="Editar"></p-button>
+          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(dependente)"
+            pTooltip="Excluir"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="p-text-center">
+          <div class="p-p-3">
+            <i class="pi pi-inbox p-mr-2"></i>
+            Nenhum dependente encontrado
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 
-  <p-dialog header="{{editingDependente ? 'Editar Dependente' : 'Novo Dependente'}}" [(visible)]="displayDialog"
-    [modal]="true" [closable]="true">
-    <form [formGroup]="dependenteForm" (ngSubmit)="salvar()">
-      <div class="p-fluid">
-        <div class="p-field">
-          <label for="nome">Nome</label>
-          <input id="nome" type="text" pInputText formControlName="nome">
-        </div>
+  <p-dialog [header]="(editingDependente ? 'Editar' : 'Novo') + ' Dependente'" [(visible)]="displayDialog"
+    [modal]="true" [style]="{width: '500px'}" (onHide)="displayDialog = false">
 
-        <div class="p-field">
-          <label for="socio">Sócio</label>
-          <p-dropdown id="socio" [options]="socios" optionLabel="nome" optionValue="idSocio" formControlName="socioId"
-            placeholder="Selecione um sócio"></p-dropdown>
-        </div>
+    <form [formGroup]="dependenteForm" (ngSubmit)="salvar()" class="p-fluid p-grid p-formgrid">
+
+      <div class="p-field p-col-12">
+        <label for="nome">Nome *</label>
+        <input id="nome" type="text" pInputText formControlName="nome" placeholder="Digite o nome do dependente">
+        <small *ngIf="dependenteForm.get('nome')?.invalid && dependenteForm.get('nome')?.touched" class="p-error">
+          Nome é obrigatório
+        </small>
       </div>
 
-      <p-footer>
-        <div class="footer-buttons">
-          <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
-          </p-button>
+      <div class="p-field p-col-6">
+        <label for="sexo">Sexo *</label>
+        <p-dropdown id="sexo" [options]="opcoesSexo" optionLabel="label" optionValue="value" formControlName="sexo"
+          placeholder="Selecione" appendTo="body"> <!-- ADICIONE AQUI -->
+        </p-dropdown>
+      </div>
 
-          <p-button label="Salvar" icon="pi pi-check" type="submit">
-          </p-button>
-        </div>
-      </p-footer>
+      <div class="p-field p-col-6">
+        <label for="dtNascimento">Nascimento *</label>
+        <input id="dtNascimento" type="date" pInputText formControlName="dtNascimento">
+      </div>
+
+      <div class="p-field p-col-12">
+        <label for="socio">Sócio *</label>
+        <p-dropdown id="socio" [options]="socios" optionLabel="nome" optionValue="idCliente" formControlName="socioId"
+          placeholder="Selecione um sócio" [showClear]="true" [loading]="carregandoSocios" appendTo="body">
+          <!-- ADICIONE AQUI -->
+          <ng-template pTemplate="empty">
+            <div class="p-text-center">Nenhum sócio encontrado</div>
+          </ng-template>
+        </p-dropdown>
+        <small *ngIf="dependenteForm.get('socioId')?.invalid && dependenteForm.get('socioId')?.touched" class="p-error">
+          Selecione um sócio
+        </small>
+      </div>
+
     </form>
+
+    <p-footer>
+      <div class="p-d-flex p-jc-between">
+        <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text"></p-button>
+        <p-button label="Salvar" icon="pi pi-check" (click)="salvar()" [disabled]="dependenteForm.invalid"></p-button>
+      </div>
+    </p-footer>
   </p-dialog>
 </div>

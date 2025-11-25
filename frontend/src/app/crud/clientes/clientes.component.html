@@ -1,41 +1,225 @@
 <div class="p-m-3">
-  <p-button label="Novo Cliente" icon="pi pi-plus" class="p-mb-3" (click)="abrirDialog()"></p-button>
+  <p-toast></p-toast>
 
-  <p-table [value]="lista" [paginator]="true" [rows]="10" [responsiveLayout]="'scroll'" class="p-shadow-2">
+  <div class="p-d-flex p-jc-between p-ai-center p-mb-3">
+    <h2>Gerenciamento de Clientes</h2>
+  </div>
+
+  <p-table [value]="clientes" [paginator]="true" [rows]="10" [loading]="carregando" [responsiveLayout]="'stack'"
+    class="p-shadow-2">
+
     <ng-template pTemplate="header">
       <tr>
-        <th *ngFor="let col of colunas">{{col.header}}</th>
-        <th>Ações</th>
+        <th>ID</th>
+        <th>Inscrição</th>
+        <th>Nome</th>
+        <th>Nascimento</th>
+        <th>Sexo</th>
+        <th>Status</th>
+        <th width="200px">Ações</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-item>
+
+    <ng-template pTemplate="body" let-cliente>
       <tr>
-        <td *ngFor="let col of colunas">{{item[col.field]}}</td>
+        <td>{{cliente.idCliente}}</td>
+        <td>{{cliente.numInscricao}}</td>
+        <td>{{cliente.nome}}</td>
+        <td>{{cliente.dtNascimento | date:'dd/MM/yyyy'}}</td>
         <td>
-          <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2"
-            (click)="abrirDialog(item)"></p-button>
-          <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="excluir(item)"></p-button>
+          <span [class]="'p-tag ' + (cliente.sexo === 'M' ? 'p-tag-info' : 'p-tag-warning')">
+            {{cliente.sexo === 'M' ? 'Masculino' : 'Feminino'}}
+          </span>
+        </td>
+        <td>
+          <span [class]="'p-tag ' + (cliente.estahAtivo ? 'p-tag-success' : 'p-tag-danger')">
+            {{cliente.estahAtivo ? 'Ativo' : 'Inativo'}}
+          </span>
+        </td>
+        <td>
+          <div class="p-d-flex p-ai-center">
+            <p-button icon="pi pi-eye" class="p-button-rounded p-button-info p-button-text p-mr-1"
+              (click)="abrirDetalhes(cliente)" pTooltip="Ver detalhes" tooltipPosition="top"></p-button>
+
+            <p-button *ngIf="cliente.estahAtivo" icon="pi pi-ban"
+              class="p-button-rounded p-button-warning p-button-text p-mr-1" (click)="desativar(cliente)"
+              pTooltip="Desativar" tooltipPosition="top"></p-button>
+
+            <p-button *ngIf="!cliente.estahAtivo" icon="pi pi-check"
+              class="p-button-rounded p-button-success p-button-text p-mr-1" (click)="reativar(cliente)"
+              pTooltip="Reativar" tooltipPosition="top"></p-button>
+
+            <p-button icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
+              (click)="confirmarExcluir(cliente)" pTooltip="Excluir" tooltipPosition="top"></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="p-text-center">
+          <div class="p-p-3">
+            <i class="pi pi-inbox p-mr-2"></i>
+            Nenhum cliente encontrado
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
 
-<p-dialog header="{{editing ? 'Editar Cliente' : 'Novo Cliente'}}" [(visible)]="displayDialog" [modal]="true"
-  [closable]="true">
-  <form [formGroup]="form" (ngSubmit)="salvar()" class="p-fluid">
-    <div class="p-field" *ngFor="let campo of campos">
-      <label [for]="campo.name">{{campo.label}}</label>
-      <input id="{{campo.name}}" type="text" pInputText [formControlName]="campo.name">
-    </div>
-    <p-footer>
-      <div class="footer-buttons">
-        <p-button label="Cancelar" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text">
-        </p-button>
+<!-- Dialog de Detalhes do Cliente -->
+<p-dialog header="Detalhes do Cliente" [(visible)]="displayDetalhes" [modal]="true"
+  [style]="{width: '700px', 'max-width': '90vw'}" [maximizable]="true">
 
-        <p-button label="Salvar" icon="pi pi-check" type="submit">
-        </p-button>
+  <div *ngIf="selecionado" class="p-fluid">
+
+    <!-- INFORMAÇÕES BÁSICAS -->
+    <div class="p-mb-4">
+      <h3>Informações Básicas</h3>
+      <div class="p-grid">
+        <div class="p-col-4">
+          <strong>ID:</strong><br>
+          {{selecionado.idCliente || 'N/A'}}
+        </div>
+        <div class="p-col-4">
+          <strong>Nº Inscrição:</strong><br>
+          {{selecionado.numInscricao || 'N/A'}}
+        </div>
+        <div class="p-col-4">
+          <strong>Status:</strong><br>
+          <span [class]="'p-tag ' + (selecionado.estahAtivo ? 'p-tag-success' : 'p-tag-danger')">
+            {{selecionado.estahAtivo ? 'Ativo' : 'Inativo'}}
+          </span>
+        </div>
+        <div class="p-col-6">
+          <strong>Nome:</strong><br>
+          {{selecionado.nome || 'N/A'}}
+        </div>
+        <div class="p-col-3">
+          <strong>Sexo:</strong><br>
+          <span [class]="'p-tag ' + ((selecionado.sexo === 'M') ? 'p-tag-info' : 'p-tag-warning')">
+            {{selecionado.sexo === 'M' ? 'Masculino' : 'Feminino'}}
+          </span>
+        </div>
+        <div class="p-col-3">
+          <strong>Nascimento:</strong><br>
+          {{(selecionado.dtNascimento | date:'dd/MM/yyyy') || 'N/A'}}
+        </div>
       </div>
-    </p-footer>
-  </form>
+    </div>
+
+    <!-- DEPENDENTES -->
+    <div class="p-mb-4">
+      <h3>Dependentes</h3>
+
+      <div *ngIf="carregandoDependentes" class="p-text-center">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p>Carregando dependentes...</p>
+      </div>
+
+      <div *ngIf="!carregandoDependentes">
+        <p>Total de dependentes: {{contarDependentes(selecionado.idCliente!)}}</p>
+
+        <!-- VERIFICAÇÃO DE SEGURANÇA PARA O ARRAY -->
+        <p-table *ngIf="dependentes && dependentes.length > 0" [value]="dependentes" [paginator]="true" [rows]="5"
+          [responsiveLayout]="'stack'">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Nome</th>
+              <th>Sexo</th>
+              <th>Nascimento</th>
+              <th>Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-dependente>
+            <tr>
+              <td>{{dependente.nome || 'N/A'}}</td>
+              <td>
+                <span [class]="'p-tag ' + ((dependente.sexo === 'M') ? 'p-tag-info' : 'p-tag-warning')">
+                  {{dependente.sexo === 'M' ? 'Masculino' : 'Feminino'}}
+                </span>
+              </td>
+              <td>{{(dependente.dtNascimento | date:'dd/MM/yyyy') || 'N/A'}}</td>
+              <td>
+                <span [class]="'p-tag ' + (dependente.estahAtivo ? 'p-tag-success' : 'p-tag-danger')">
+                  {{dependente.estahAtivo ? 'Ativo' : 'Inativo'}}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <div *ngIf="!dependentes || dependentes.length === 0" class="p-text-secondary">
+          Este cliente não possui dependentes cadastrados.
+        </div>
+      </div>
+    </div>
+
+    <!-- TÍTULOS -->
+    <div class="p-mb-4">
+      <h3>Títulos</h3>
+
+      <div *ngIf="carregandoTitulos" class="p-text-center">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p>Carregando títulos...</p>
+      </div>
+
+      <div *ngIf="!carregandoTitulos">
+        <!-- VERIFICAÇÃO DE SEGURANÇA PARA O ARRAY -->
+        <p-table *ngIf="titulosCliente && titulosCliente.length > 0" [value]="titulosCliente" [paginator]="true"
+          [rows]="5" [responsiveLayout]="'stack'">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID Título</th>
+              <th>Nome</th>
+              <th>Ano</th>
+              <th>Status</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-titulo>
+            <tr>
+              <td>{{titulo.idTitulo || 'N/A'}}</td>
+              <td>{{titulo.nomeTitulo || 'N/A'}}</td>
+              <td>{{titulo.ano || 'N/A'}}</td>
+              <td>
+                <span [class]="'p-tag ' + (titulo.estahAtivo ? 'p-tag-success' : 'p-tag-danger')">
+                  {{titulo.estahAtivo ? 'Ativo' : 'Inativo'}}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <div *ngIf="!titulosCliente || titulosCliente.length === 0" class="p-text-secondary">
+          Nenhum título associado a este cliente.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p-footer>
+    <div class="p-d-flex p-jc-end">
+      <p-button label="Fechar" icon="pi pi-times" (click)="displayDetalhes = false"></p-button>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<!-- Dialog de Confirmação para Exclusão -->
+<p-dialog header="Confirmar Exclusão" [(visible)]="displayConfirmarExclusao" [modal]="true" [style]="{width: '400px'}">
+  <div class="p-d-flex p-ai-center p-flex-column p-text-center">
+    <i class="pi pi-exclamation-triangle p-mb-3" style="font-size: 3rem; color: #e74c3c;"></i>
+    <p class="p-m-0">Tem certeza que deseja excluir o cliente <strong>{{clienteSelecionado?.nome}}</strong>?</p>
+    <small class="p-text-secondary p-mt-2">Esta ação não pode ser desfeita.</small>
+  </div>
+
+  <p-footer>
+    <div class="p-d-flex p-jc-between">
+      <p-button label="Cancelar" icon="pi pi-times" (click)="displayConfirmarExclusao = false"
+        class="p-button-text"></p-button>
+      <p-button label="Excluir" icon="pi pi-trash" (click)="excluir()" class="p-button-danger"></p-button>
+    </div>
+  </p-footer>
 </p-dialog>

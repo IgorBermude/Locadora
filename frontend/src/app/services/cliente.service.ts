@@ -32,6 +32,18 @@ export class ClienteService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
   }
 
+  desativar(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/desativar`, {}).pipe(catchError(this.handleError));
+  }
+
+  reativar(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/reativar`, {}).pipe(catchError(this.handleError));
+  }
+
+  getTitulos(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/titulos`).pipe(catchError(this.handleError));
+  }
+
   private handleError(error: HttpErrorResponse) {
     console.error('Erro em ClienteService:', error);
     let msg = 'Erro ao processar a solicitação de Cliente.';
