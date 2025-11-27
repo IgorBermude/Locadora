@@ -7,8 +7,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "items")
+
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +35,7 @@ public class Item {
     private String tipoItem; // FITA, DVD, BLURAY
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value="item-locacacoes")
     private List<Locacao> locacaoes = new ArrayList<>();
 
     public Item() {}

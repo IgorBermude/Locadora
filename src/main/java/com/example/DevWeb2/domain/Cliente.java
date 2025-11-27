@@ -6,10 +6,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "clientes")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "tipo_cliente")
+
 public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +35,7 @@ public class Cliente {
 
     // mappedBy ajustado para o nome do atributo em Locacao (\"cliente\")
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value="cliente-locacacoes")
     private List<Locacao> locacaoes = new ArrayList<>();
 
     public Cliente () {}

@@ -5,8 +5,12 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "locacoes")
+
 public class Locacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,10 +33,12 @@ public class Locacao {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cliente_id")
+    @JsonBackReference(value="cliente-locacacoes")
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "item_id")
+    @JsonManagedReference(value="item-locacacoes")
     private Item item;
 
     public Locacao() {}

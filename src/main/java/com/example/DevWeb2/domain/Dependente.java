@@ -6,11 +6,15 @@ import java.util.List;
 import jakarta.persistence.PersistenceException;
 import org.hibernate.Hibernate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @DiscriminatorValue("DEPENDENTE")
+
 public class Dependente extends Cliente{
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "socio_id", nullable = true)
+    @JsonBackReference(value="socio-dependentes")
     private Socio socio;
 
     public Dependente() {}

@@ -113,10 +113,10 @@ export class LocacoesComponent implements OnInit {
       this.locacaoSelecionada = locacao;
       this.locacaoForm.patchValue({
         idLocacao: locacao.idLocacao,
-        cliente: locacao.cliente,
-        item: locacao.item,
-        dtLocacao: new Date(locacao.dtLocacao).toISOString().split('T')[0],
-        dtDevolucaoPrevista: new Date(locacao.dtDevolucaoPrevista).toISOString().split('T')[0]
+        cliente: locacao.clienteId,
+        item: locacao.itemId,
+        dtLocacao: new Date(locacao.dataLocacao).toISOString().split('T')[0],
+        dtDevolucaoPrevista: new Date(locacao.dataDevolucao).toISOString().split('T')[0]
       });
     } else {
       this.editingLocacao = false;
@@ -141,15 +141,12 @@ export class LocacoesComponent implements OnInit {
     console.log('📍 Cliente selecionado:', formValue.cliente);
     console.log('📍 Item selecionado:', formValue.item);
 
-    // Preparar dados para o backend - objetos completos
     const locacaoData: Locacao = {
       idLocacao: formValue.idLocacao,
-      dtLocacao: formValue.dtLocacao,
-      dtDevolucaoPrevista: formValue.dtDevolucaoPrevista,
-      valorCobrado: 0, // O backend pode calcular isso
-      multaCobrada: 0,
-      cliente: formValue.cliente, // Objeto completo
-      item: formValue.item        // Objeto completo
+      dataLocacao: formValue.dtLocacao,
+      dataDevolucao: formValue.dtDevolucaoPrevista,
+      clienteId: formValue.cliente.idCliente, 
+      itemId: formValue.item.idItem        
     };
 
     console.log('📍 Dados da locação antes de enviar:', locacaoData);

@@ -7,8 +7,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @DiscriminatorValue("SOCIO")
+
 public class Socio extends Cliente{
     @Column(unique = true, length = 11, nullable = true)
     private String cpf;
@@ -17,6 +20,7 @@ public class Socio extends Cliente{
     private String tel;
 
     @OneToMany(mappedBy = "socio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value="socio-dependentes")
     private List<Dependente> dependentes = new ArrayList<>();
 
     public Socio(){}
