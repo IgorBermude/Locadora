@@ -40,8 +40,8 @@ export class LocacoesComponent implements OnInit {
   inicializarFormulario() {
     this.locacaoForm = this.fb.group({
       idLocacao: [null],
-      cliente: [null, Validators.required],    // CORRIGIDO: estava 'clienteId'
-      item: [null, Validators.required],       // CORRIGIDO: estava 'itemId'
+      cliente: [null, Validators.required], 
+      item: [null, Validators.required],       
       dtLocacao: [new Date().toISOString().split('T')[0], Validators.required],
       dtDevolucaoPrevista: [new Date().toISOString().split('T')[0], Validators.required]
     });
