@@ -6,13 +6,17 @@ public class LocacaoDTO {
     public Long itemId;
     public String dataLocacao;
     public String dataDevolucao;
+    public String valorCobrado;
+    public String multaCobrada;
 
-    public LocacaoDTO(Long idLocacao, Long clienteId, Long itemId, String dataLocacao, String dataDevolucao) {
+    public LocacaoDTO(Long idLocacao, Long clienteId, Long itemId, String dataLocacao, String dataDevolucao, String valorCobrado, String multaCobrada) {
         this.idLocacao = idLocacao;
         this.clienteId = clienteId;
         this.itemId = itemId;
         this.dataLocacao = dataLocacao;
         this.dataDevolucao = dataDevolucao;
+        this.valorCobrado = valorCobrado;
+        this.multaCobrada = multaCobrada;
     }
 
     public Long getIdLocacao() {

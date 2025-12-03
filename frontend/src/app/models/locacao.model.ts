@@ -7,4 +7,6 @@ export interface Locacao {
   itemId: number;
   dataLocacao: string;
   dataDevolucao: string;
+  cliente?: Cliente;
+  item?: ItemDTO;
 }

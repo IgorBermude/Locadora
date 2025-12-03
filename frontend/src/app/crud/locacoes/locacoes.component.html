@@ -25,8 +25,8 @@
         <td>{{locacao.idLocacao}}</td>
         <td>{{locacao.cliente?.nome || '—'}}</td>
         <td>{{locacao.item?.numeroSerie || '—'}} ({{locacao.item?.tipoItem || '—'}})</td>
-        <td>{{locacao.dtLocacao | date:'dd/MM/yyyy'}}</td>
-        <td>{{locacao.dtDevolucaoPrevista | date:'dd/MM/yyyy'}}</td>
+        <td>{{locacao.dataLocacao | date:'dd/MM/yyyy'}}</td>
+        <td>{{locacao.dataDevolucao | date:'dd/MM/yyyy'}}</td>
         <td>R$ {{locacao.valorCobrado || '0.00'}}</td>
         <td>
           <p-button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-1"

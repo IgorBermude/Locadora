@@ -1,10 +1,15 @@
 package com.example.DevWeb2.controller;
 
+import com.example.DevWeb2.domain.Dependente;
 import com.example.DevWeb2.domain.Item;
 import com.example.DevWeb2.domain.Locacao;
 import com.example.DevWeb2.dto.LocacaoDTO;
+import com.example.DevWeb2.mapper.ClienteMapper;
+import com.example.DevWeb2.mapper.DependenteMapper;
+import com.example.DevWeb2.mapper.LocacaoMapper;
 import com.example.DevWeb2.repository.ClienteRepository;
 import com.example.DevWeb2.repository.ItemRepository;
+import com.example.DevWeb2.repository.LocacaoRepository;
 import com.example.DevWeb2.service.LocacaoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +21,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/locacoes")
@@ -24,23 +30,29 @@ public class LocacaoController {
     private final LocacaoService service;
     private final ClienteRepository clienteRepository;
     private final ItemRepository itemRepository;
+    private final LocacaoRepository locacaoRepository;
 
-    public LocacaoController(LocacaoService service, ClienteRepository clienteRepository, ItemRepository itemRepository) {
+    public LocacaoController(LocacaoService service, ClienteRepository clienteRepository, ItemRepository itemRepository, LocacaoRepository locacaoRepository) {
         this.service = service;
         this.clienteRepository = clienteRepository;
         this.itemRepository = itemRepository;
+        this.locacaoRepository = locacaoRepository;
     }
 
     @GetMapping
-    public List<Locacao> listar() {
-        return service.listar();
+    public List<LocacaoDTO> listar() {
+        return service.listar().stream()
+                .map(LocacaoMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
+    // java
     @GetMapping("/{id}")
-    public ResponseEntity<Locacao> buscar(@PathVariable Long id) {
-        return service.pesquisar(id)
+    public ResponseEntity<LocacaoDTO> buscar(@PathVariable Long id) {
+        return locacaoRepository.findById(id)
+                .map(LocacaoMapper::toDTO)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // Novo: criar locação usando DTO com ids

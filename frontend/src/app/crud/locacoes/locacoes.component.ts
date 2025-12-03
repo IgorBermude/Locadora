@@ -28,7 +28,7 @@ export class LocacoesComponent implements OnInit {
     private fb: FormBuilder,
     private locacaoService: LocacaoService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.inicializarFormulario();
@@ -40,10 +40,10 @@ export class LocacoesComponent implements OnInit {
   inicializarFormulario() {
     this.locacaoForm = this.fb.group({
       idLocacao: [null],
-      cliente: [null, Validators.required], // Agora é o objeto cliente
-      item: [null, Validators.required],    // Agora é o objeto item
-      dtLocacao: ['', Validators.required],
-      dtDevolucaoPrevista: ['', Validators.required]
+      cliente: [null, Validators.required],    // CORRIGIDO: estava 'clienteId'
+      item: [null, Validators.required],       // CORRIGIDO: estava 'itemId'
+      dtLocacao: [new Date().toISOString().split('T')[0], Validators.required],
+      dtDevolucaoPrevista: [new Date().toISOString().split('T')[0], Validators.required]
     });
   }
 
@@ -54,6 +54,7 @@ export class LocacoesComponent implements OnInit {
         console.log('Clientes carregados:', clientes);
         this.clientes = clientes;
         this.carregandoClientes = false;
+        this.enriquecerLocacoes(); // Atualiza após carregar clientes
       },
       error: (error) => {
         console.error('Erro ao carregar clientes:', error);
@@ -74,6 +75,7 @@ export class LocacoesComponent implements OnInit {
         console.log('Itens carregados:', itens);
         this.itens = itens;
         this.carregandoItens = false;
+        this.enriquecerLocacoes(); // Atualiza após carregar itens
       },
       error: (error) => {
         console.error('Erro ao carregar itens:', error);
@@ -89,10 +91,12 @@ export class LocacoesComponent implements OnInit {
 
   carregarLocacoes() {
     this.carregando = true;
+
     this.locacaoService.getAll().subscribe({
       next: (locacoes) => {
         console.log('Locações carregadas:', locacoes);
         this.locacoes = locacoes;
+        this.enriquecerLocacoes(); // Enriquecer com dados já carregados
         this.carregando = false;
       },
       error: (error) => {
@@ -107,14 +111,26 @@ export class LocacoesComponent implements OnInit {
     });
   }
 
+  enriquecerLocacoes() {
+    // Só enriquece se já tiver clientes e itens carregados
+    if (this.clientes.length > 0 && this.itens.length > 0) {
+      this.locacoes = this.locacoes.map(l => ({
+        ...l,
+        cliente: this.clientes.find(c => c.idCliente === l.clienteId),
+        item: this.itens.find(i => i.idItem === l.itemId)
+      }));
+      console.log("Locações enriquecidas → ", this.locacoes);
+    }
+  }
+
   abrirDialog(locacao?: Locacao) {
     if (locacao) {
       this.editingLocacao = true;
       this.locacaoSelecionada = locacao;
       this.locacaoForm.patchValue({
         idLocacao: locacao.idLocacao,
-        cliente: locacao.clienteId,
-        item: locacao.itemId,
+        cliente: this.clientes.find(c => c.idCliente === locacao.clienteId), // Envia objeto completo
+        item: this.itens.find(i => i.idItem === locacao.itemId), // Envia objeto completo
         dtLocacao: new Date(locacao.dataLocacao).toISOString().split('T')[0],
         dtDevolucaoPrevista: new Date(locacao.dataDevolucao).toISOString().split('T')[0]
       });
@@ -122,7 +138,8 @@ export class LocacoesComponent implements OnInit {
       this.editingLocacao = false;
       this.locacaoSelecionada = null;
       this.locacaoForm.reset({
-        dtLocacao: new Date().toISOString().split('T')[0]
+        dtLocacao: new Date().toISOString().split('T')[0],
+        dtDevolucaoPrevista: new Date().toISOString().split('T')[0]
       });
     }
     this.displayDialog = true;
@@ -136,51 +153,60 @@ export class LocacoesComponent implements OnInit {
     }
 
     const formValue = this.locacaoForm.getRawValue();
-    
+
     console.log('📍 Valores do formulário:', formValue);
     console.log('📍 Cliente selecionado:', formValue.cliente);
     console.log('📍 Item selecionado:', formValue.item);
+
+    // Extrai os IDs dos objetos selecionados
+    const clienteId = formValue.cliente?.idCliente || formValue.cliente;
+    const itemId = formValue.item?.idItem || formValue.item;
 
     const locacaoData: Locacao = {
       idLocacao: formValue.idLocacao,
       dataLocacao: formValue.dtLocacao,
       dataDevolucao: formValue.dtDevolucaoPrevista,
-      clienteId: formValue.cliente.idCliente, 
-      itemId: formValue.item.idItem        
+      clienteId: clienteId,
+      itemId: itemId
     };
 
     console.log('📍 Dados da locação antes de enviar:', locacaoData);
 
-    const operacao = this.editingLocacao 
+    const operacao = this.editingLocacao
       ? this.locacaoService.update(locacaoData)
       : this.locacaoService.create(locacaoData);
 
     operacao.subscribe({
       next: (locacaoSalva) => {
         console.log('✅ Locação salva com sucesso:', locacaoSalva);
-        
+
+        // Atualiza a lista local
         if (this.editingLocacao) {
           const index = this.locacoes.findIndex(l => l.idLocacao === locacaoSalva.idLocacao);
-          this.locacoes[index] = locacaoSalva;
+          if (index !== -1) {
+            this.locacoes[index] = locacaoSalva;
+          }
         } else {
           this.locacoes.push(locacaoSalva);
         }
         
+        // Re-enriquecer os dados
+        this.enriquecerLocacoes();
+
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
           detail: `Locação ${this.editingLocacao ? 'atualizada' : 'criada'} com sucesso`
         });
-        
+
         this.displayDialog = false;
-        this.carregarLocacoes(); // Recarregar para garantir sincronização
       },
       error: (error) => {
         console.error('❌ Erro ao salvar locação:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: error.message || `Erro ao ${this.editingLocacao ? 'atualizar' : 'criar'} locação`
+          detail: error.error?.message || error.message || `Erro ao ${this.editingLocacao ? 'atualizar' : 'criar'} locação`
         });
       }
     });
@@ -189,24 +215,26 @@ export class LocacoesComponent implements OnInit {
   excluir(locacao: Locacao) {
     if (!locacao.idLocacao) return;
 
-    this.locacaoService.delete(locacao.idLocacao).subscribe({
-      next: () => {
-        this.locacoes = this.locacoes.filter(l => l.idLocacao !== locacao.idLocacao);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Locação excluída com sucesso'
-        });
-      },
-      error: (error) => {
-        console.error('Erro ao excluir locação:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: error.message || 'Erro ao excluir locação'
-        });
-      }
-    });
+    if (confirm(`Tem certeza que deseja excluir a locação ${locacao.idLocacao}?`)) {
+      this.locacaoService.delete(locacao.idLocacao).subscribe({
+        next: () => {
+          this.locacoes = this.locacoes.filter(l => l.idLocacao !== locacao.idLocacao);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Locação excluída com sucesso'
+          });
+        },
+        error: (error) => {
+          console.error('Erro ao excluir locação:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: error.error?.message || error.message || 'Erro ao excluir locação'
+          });
+        }
+      });
+    }
   }
 
   private marcarCamposComoSujos() {
