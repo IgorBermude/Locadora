@@ -20,6 +20,10 @@ export class LocacoesComponent implements OnInit {
   displayDialog: boolean = false;
   editingLocacao: boolean = false;
   locacaoSelecionada: Locacao | null = null;
+  locacaoSelecionadaParaExcluir: Locacao | null = null;
+  displayConfirmacaoCancelamento: boolean = false;
+  motivoCancelamento: string = '';
+  locacaoParaCancelar: Locacao | null = null;
   carregando: boolean = false;
   carregandoClientes: boolean = false;
   carregandoItens: boolean = false;
@@ -40,8 +44,8 @@ export class LocacoesComponent implements OnInit {
   inicializarFormulario() {
     this.locacaoForm = this.fb.group({
       idLocacao: [null],
-      cliente: [null, Validators.required], 
-      item: [null, Validators.required],       
+      cliente: [null, Validators.required],
+      item: [null, Validators.required],
       dtLocacao: [new Date().toISOString().split('T')[0], Validators.required],
       dtDevolucaoPrevista: [new Date().toISOString().split('T')[0], Validators.required]
     });
@@ -51,10 +55,9 @@ export class LocacoesComponent implements OnInit {
     this.carregandoClientes = true;
     this.locacaoService.getClientes().subscribe({
       next: (clientes) => {
-        console.log('Clientes carregados:', clientes);
         this.clientes = clientes;
         this.carregandoClientes = false;
-        this.enriquecerLocacoes(); // Atualiza após carregar clientes
+        this.enriquecerLocacoes();
       },
       error: (error) => {
         console.error('Erro ao carregar clientes:', error);
@@ -72,10 +75,9 @@ export class LocacoesComponent implements OnInit {
     this.carregandoItens = true;
     this.locacaoService.getItens().subscribe({
       next: (itens) => {
-        console.log('Itens carregados:', itens);
         this.itens = itens;
         this.carregandoItens = false;
-        this.enriquecerLocacoes(); // Atualiza após carregar itens
+        this.enriquecerLocacoes();
       },
       error: (error) => {
         console.error('Erro ao carregar itens:', error);
@@ -91,12 +93,10 @@ export class LocacoesComponent implements OnInit {
 
   carregarLocacoes() {
     this.carregando = true;
-
     this.locacaoService.getAll().subscribe({
       next: (locacoes) => {
-        console.log('Locações carregadas:', locacoes);
         this.locacoes = locacoes;
-        this.enriquecerLocacoes(); // Enriquecer com dados já carregados
+        this.enriquecerLocacoes();
         this.carregando = false;
       },
       error: (error) => {
@@ -112,14 +112,14 @@ export class LocacoesComponent implements OnInit {
   }
 
   enriquecerLocacoes() {
-    // Só enriquece se já tiver clientes e itens carregados
     if (this.clientes.length > 0 && this.itens.length > 0) {
-      this.locacoes = this.locacoes.map(l => ({
-        ...l,
-        cliente: this.clientes.find(c => c.idCliente === l.clienteId),
-        item: this.itens.find(i => i.idItem === l.itemId)
-      }));
-      console.log("Locações enriquecidas → ", this.locacoes);
+      this.locacoes = this.locacoes
+        .filter(locacao => locacao !== null && locacao !== undefined)
+        .map(l => ({
+          ...l,
+          cliente: this.clientes.find(c => c.idCliente === l.clienteId),
+          item: this.itens.find(i => i.idItem === l.itemId)
+        }));
     }
   }
 
@@ -129,8 +129,8 @@ export class LocacoesComponent implements OnInit {
       this.locacaoSelecionada = locacao;
       this.locacaoForm.patchValue({
         idLocacao: locacao.idLocacao,
-        cliente: this.clientes.find(c => c.idCliente === locacao.clienteId), // Envia objeto completo
-        item: this.itens.find(i => i.idItem === locacao.itemId), // Envia objeto completo
+        cliente: this.clientes.find(c => c.idCliente === locacao.clienteId),
+        item: this.itens.find(i => i.idItem === locacao.itemId),
         dtLocacao: new Date(locacao.dataLocacao).toISOString().split('T')[0],
         dtDevolucaoPrevista: new Date(locacao.dataDevolucao).toISOString().split('T')[0]
       });
@@ -147,30 +147,21 @@ export class LocacoesComponent implements OnInit {
 
   salvar() {
     if (this.locacaoForm.invalid) {
-      console.log('📍 Formulário inválido:', this.locacaoForm.errors);
       this.marcarCamposComoSujos();
       return;
     }
 
     const formValue = this.locacaoForm.getRawValue();
-
-    console.log('📍 Valores do formulário:', formValue);
-    console.log('📍 Cliente selecionado:', formValue.cliente);
-    console.log('📍 Item selecionado:', formValue.item);
-
-    // Extrai os IDs dos objetos selecionados
     const clienteId = formValue.cliente?.idCliente || formValue.cliente;
     const itemId = formValue.item?.idItem || formValue.item;
 
-    const locacaoData: Locacao = {
+    const locacaoData: any = {
       idLocacao: formValue.idLocacao,
       dataLocacao: formValue.dtLocacao,
       dataDevolucao: formValue.dtDevolucaoPrevista,
       clienteId: clienteId,
       itemId: itemId
     };
-
-    console.log('📍 Dados da locação antes de enviar:', locacaoData);
 
     const operacao = this.editingLocacao
       ? this.locacaoService.update(locacaoData)
@@ -179,19 +170,18 @@ export class LocacoesComponent implements OnInit {
     operacao.subscribe({
       next: (locacaoSalva) => {
         console.log('✅ Locação salva com sucesso:', locacaoSalva);
-
-        // Atualiza a lista local
-        if (this.editingLocacao) {
-          const index = this.locacoes.findIndex(l => l.idLocacao === locacaoSalva.idLocacao);
-          if (index !== -1) {
-            this.locacoes[index] = locacaoSalva;
-          }
-        } else {
-          this.locacoes.push(locacaoSalva);
-        }
         
-        // Re-enriquecer os dados
-        this.enriquecerLocacoes();
+        if (!this.editingLocacao) {
+          this.carregarLocacoes();
+        } else {
+          if (locacaoSalva) {
+            const index = this.locacoes.findIndex(l => l.idLocacao === locacaoSalva.idLocacao);
+            if (index !== -1) {
+              this.locacoes[index] = locacaoSalva;
+              this.enriquecerLocacoes();
+            }
+          }
+        }
 
         this.messageService.add({
           severity: 'success',
@@ -206,7 +196,7 @@ export class LocacoesComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: error.error?.message || error.message || `Erro ao ${this.editingLocacao ? 'atualizar' : 'criar'} locação`
+          detail: error.message || `Erro ao ${this.editingLocacao ? 'atualizar' : 'criar'} locação`
         });
       }
     });
@@ -215,26 +205,114 @@ export class LocacoesComponent implements OnInit {
   excluir(locacao: Locacao) {
     if (!locacao.idLocacao) return;
 
-    if (confirm(`Tem certeza que deseja excluir a locação ${locacao.idLocacao}?`)) {
-      this.locacaoService.delete(locacao.idLocacao).subscribe({
-        next: () => {
-          this.locacoes = this.locacoes.filter(l => l.idLocacao !== locacao.idLocacao);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Locação excluída com sucesso'
-          });
-        },
-        error: (error) => {
-          console.error('Erro ao excluir locação:', error);
+    this.locacaoSelecionadaParaExcluir = locacao;
+
+    this.messageService.clear();
+    this.messageService.add({
+      key: 'confirmacaoExclusao',
+      sticky: true,
+      severity: 'warn',
+      summary: 'Confirmar cancelamento',
+      detail: `Tem certeza que deseja cancelar a locação ${locacao.idLocacao} do cliente ${locacao.cliente?.nome || 'N/A'}? Esta ação requer confirmação.`,
+      closable: false
+    });
+  }
+
+  confirmarExclusao() {
+    const locacao = this.locacaoSelecionadaParaExcluir;
+    
+    if (!locacao || !locacao.idLocacao) {
+      this.messageService.clear('confirmacaoExclusao');
+      return;
+    }
+
+    this.messageService.clear('confirmacaoExclusao');
+    
+    this.locacaoService.delete(locacao.idLocacao, true).subscribe({
+      next: () => {
+        this.locacoes = this.locacoes.filter(l => l.idLocacao !== locacao.idLocacao);
+        this.enriquecerLocacoes();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Locação cancelada com sucesso'
+        });
+        this.locacaoSelecionadaParaExcluir = null;
+      },
+      error: (error) => {
+        console.error('Erro ao cancelar locação:', error);
+        
+        let mensagemErro = 'Erro ao cancelar locação';
+        
+        if (error.status === 409) {
+          if (error.error && error.error.erro) {
+            mensagemErro = error.error.erro;
+          } else if (error.message) {
+            mensagemErro = error.message;
+          }
+          
+          this.abrirDialogoMotivoCancelamento(locacao);
+        } else {
           this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: error.error?.message || error.message || 'Erro ao excluir locação'
+            detail: mensagemErro,
+            life: 5000
           });
         }
-      });
-    }
+        
+        this.locacaoSelecionadaParaExcluir = null;
+      }
+    });
+  }
+
+  abrirDialogoMotivoCancelamento(locacao: Locacao) {
+    this.locacaoParaCancelar = locacao;
+    this.motivoCancelamento = '';
+    this.displayConfirmacaoCancelamento = true;
+  }
+
+  confirmarCancelamentoComMotivo() {
+    if (!this.locacaoParaCancelar?.idLocacao) return;
+
+    this.locacaoService.delete(this.locacaoParaCancelar.idLocacao, true).subscribe({
+      next: () => {
+        this.locacoes = this.locacoes.filter(l => l.idLocacao !== this.locacaoParaCancelar?.idLocacao);
+        this.enriquecerLocacoes();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Locação cancelada com sucesso'
+        });
+        this.fecharDialogoMotivoCancelamento();
+      },
+      error: (error) => {
+        console.error('Erro ao cancelar com motivo:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: error.message || 'Erro ao cancelar locação'
+        });
+        this.fecharDialogoMotivoCancelamento();
+      }
+    });
+  }
+
+  fecharDialogoMotivoCancelamento() {
+    this.displayConfirmacaoCancelamento = false;
+    this.locacaoParaCancelar = null;
+    this.motivoCancelamento = '';
+  }
+
+  rejeitarExclusao() {
+    this.messageService.clear('confirmacaoExclusao');
+    this.locacaoSelecionadaParaExcluir = null;
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Cancelado',
+      detail: 'Operação de cancelamento cancelada',
+      life: 3000
+    });
   }
 
   private marcarCamposComoSujos() {

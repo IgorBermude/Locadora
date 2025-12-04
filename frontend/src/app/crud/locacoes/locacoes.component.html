@@ -1,5 +1,63 @@
 <div class="crud-container">
+  <!-- Toast principal para mensagens normais -->
   <p-toast></p-toast>
+
+  <!-- Toast de confirmação para exclusão (sticky) -->
+  <p-toast key="confirmacaoExclusao" position="center" [baseZIndex]="10000">
+    <ng-template let-message pTemplate="message">
+      <div class="p-flex p-flex-column p-ai-center p-p-3" style="flex: 1; min-width: 300px;">
+        <div class="p-text-center">
+          <i class="pi pi-exclamation-triangle p-mb-3" style="font-size: 2.5rem; color: #ffc107;"></i>
+          <div class="p-font-bold p-mb-2" style="font-size: 1.2rem;">{{message.summary}}</div>
+          <div class="p-mb-4">{{message.detail}}</div>
+        </div>
+        <div class="p-grid p-fluid" style="width: 100%;">
+          <div class="p-col-6">
+            <button pButton pRipple type="button" 
+                    (click)="rejeitarExclusao()" 
+                    class="p-button-outlined p-button-secondary"
+                    style="width: 100%;"
+                    label="Não"></button>
+          </div>
+          <div class="p-col-6">
+            <button pButton pRipple type="button" 
+                    (click)="confirmarExclusao()" 
+                    class="p-button-danger"
+                    style="width: 100%;"
+                    label="Sim, Cancelar"></button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-toast>
+
+  <!-- Diálogo para motivo de cancelamento (se necessário) -->
+  <p-dialog *ngIf="displayConfirmacaoCancelamento" header="Confirmar Cancelamento" 
+            [(visible)]="displayConfirmacaoCancelamento" [modal]="true"
+            [style]="{width: '450px'}" (onHide)="fecharDialogoMotivoCancelamento()">
+    
+    <div class="p-fluid">
+      <div class="p-field">
+        <label for="motivoCancelamento">Motivo do cancelamento (opcional)</label>
+        <textarea id="motivoCancelamento" [(ngModel)]="motivoCancelamento" pInputTextarea 
+                  [rows]="3" placeholder="Descreva o motivo do cancelamento..."></textarea>
+      </div>
+      
+      <div class="p-mt-3 p-text-center">
+        <p>Atenção: Esta operação requer confirmação e pode ter restrições.</p>
+        <small class="p-error">* Mesmo com motivo, o cancelamento pode ser recusado pelo sistema.</small>
+      </div>
+    </div>
+    
+    <p-footer>
+      <div class="p-d-flex p-jc-between">
+        <p-button label="Cancelar" icon="pi pi-times" 
+                  (click)="fecharDialogoMotivoCancelamento()" class="p-button-text"></p-button>
+        <p-button label="Confirmar Cancelamento" icon="pi pi-check" 
+                  (click)="confirmarCancelamentoComMotivo()" class="p-button-danger"></p-button>
+      </div>
+    </p-footer>
+  </p-dialog>
 
   <h2>Gerenciamento de Locações</h2>
 

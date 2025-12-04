@@ -41,8 +41,10 @@ export class LocacaoService {
     return this.http.put<Locacao>(`${this.apiUrl}/${dto.idLocacao}`, dto).pipe(catchError(this.handleError));
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(catchError(this.handleError));
+  // ---- DELETE com parâmetro de confirmação (ALTERADO!)
+  delete(id: number, confirm: boolean = true): Observable<void> {
+    console.log(`🗑️ Enviando DELETE para ${id} com confirm=${confirm}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}?confirm=${confirm}`).pipe(catchError(this.handleError));
   }
 
   registrarDevolucao(numeroSerie: string): Observable<any> {
