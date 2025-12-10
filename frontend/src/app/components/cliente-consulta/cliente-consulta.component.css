@@ -1,0 +1,282 @@
+.cliente-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.cliente-header {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 15px;
+  color: white;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.header-text h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.filters-card {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  border: none;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  border-color: #2196F3;
+  color: #2196F3;
+}
+
+.filter-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  transition: all 0.3s ease;
+}
+
+.filter-option.active .filter-icon {
+  background: #2196F3;
+  color: white;
+}
+
+.filter-option span {
+  font-weight: 500;
+}
+
+.main-card {
+  background: white;
+  border-radius: 12px;
+  min-height: 400px;
+}
+
+.search-box {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 10px;
+  border-left: 4px solid #2196F3;
+}
+
+.search-input {
+  border-radius: 8px 0 0 8px !important;
+  border-right: none;
+}
+
+.movie-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.movie-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+.movie-header {
+  padding: 20px 20px 10px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.movie-title {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 1.2rem;
+}
+
+.movie-original {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 0;
+}
+
+.movie-body {
+  padding: 20px;
+}
+
+.movie-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-item i {
+  color: #6c757d;
+  width: 20px;
+}
+
+.label {
+  font-weight: 500;
+  color: #495057;
+  min-width: 70px;
+}
+
+.value {
+  color: #6c757d;
+  flex: 1;
+}
+
+.price {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.availability {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.movie-synopsis {
+  margin-top: 20px;
+}
+
+.synopsis-text {
+  color: #666;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+.movie-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+  border-radius: 0 0 12px 12px;
+}
+
+.movie-stats {
+  display: flex;
+  gap: 15px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  color: #bdc3c7;
+  margin-bottom: 20px;
+}
+
+.tips {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.tip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.results-header {
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 20px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cliente-container {
+    padding: 10px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .filters-card {
+    margin-bottom: 20px;
+  }
+  
+  .filter-options {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+  
+  .filter-option {
+    flex-direction: column;
+    text-align: center;
+    min-width: 100px;
+  }
+  
+  .filter-icon {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  
+  .movie-footer {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .movie-stats {
+    justify-content: center;
+  }
+}

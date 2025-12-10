@@ -5,233 +5,265 @@ import { TituloService } from 'src/app/services/titulo.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-cliente-consulta',
-  templateUrl: './cliente-consulta.component.html',
-  styleUrls: ['./cliente-consulta.component.css'],
-  providers: [MessageService]
+    selector: 'app-cliente-consulta',
+    templateUrl: './cliente-consulta.component.html',
+    styleUrls: ['./cliente-consulta.component.css'],
+    providers: [MessageService]
 })
 export class ClienteConsultaComponent implements OnInit {
-  tipoConsulta: string = 'nome';
-  filtroNome: string = '';
-  categoriaSelecionada: any;
-  atorSelecionado: any;
-  titulos: Titulo[] = [];
-  consultaRealizada: boolean = false;
-  
-  categorias: any[] = [];
-  atores: any[] = [];
-  
-  carregando: boolean = false;
-  carregandoCategorias: boolean = false;
-  carregandoAtores: boolean = false;
+    tipoConsulta: string = 'nome';
+    filtroNome: string = '';
+    categoriaSelecionada: any;
+    atorSelecionado: any;
+    titulos: Titulo[] = [];
+    consultaRealizada: boolean = false;
 
-  constructor(
-    private router: Router,
-    private tituloService: TituloService,
-    private messageService: MessageService
-  ) {}
+    categorias: any[] = [];
+    atores: any[] = [];
 
-  ngOnInit() {
-    this.carregarCategorias();
-    this.carregarAtores();
-  }
+    carregando: boolean = false;
+    carregandoCategorias: boolean = false;
+    carregandoAtores: boolean = false;
 
-  selecionarTipoConsulta(tipo: string) {
-    this.tipoConsulta = tipo;
-    this.titulos = [];
-    this.consultaRealizada = false;
-  }
+    constructor(
+        private router: Router,
+        private tituloService: TituloService,
+        private messageService: MessageService
+    ) { }
 
-  consultarPorNome() {
-    if (!this.filtroNome || this.filtroNome.trim() === '') {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: 'Digite um nome para buscar',
-        life: 3000
-      });
-      return;
+    ngOnInit() {
+        this.carregarCategorias();
+        this.carregarAtores();
     }
 
-    this.carregando = true;
-    this.titulos = [];
-    this.consultaRealizada = true;
-
-    this.tituloService.buscarPorNome(this.filtroNome.trim()).subscribe({
-      next: (titulos) => {
-        this.titulos = titulos;
-        this.carregando = false;
-        
-        if (titulos.length === 0) {
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Sem resultados',
-            detail: `Nenhum título encontrado com o nome "${this.filtroNome}"`,
-            life: 3000
-          });
-        }
-      },
-      error: (error) => {
-        console.error('Erro ao buscar por nome:', error);
-        this.carregando = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: error.message || 'Erro ao buscar títulos',
-          life: 5000
-        });
-      }
-    });
-  }
-
-  consultarPorCategoria() {
-    if (!this.categoriaSelecionada) {
-      this.titulos = [];
-      this.consultaRealizada = false;
-      return;
+    selecionarTipoConsulta(tipo: string) {
+        this.tipoConsulta = tipo;
+        this.titulos = [];
+        this.consultaRealizada = false;
     }
 
-    this.carregando = true;
-    this.titulos = [];
-    this.consultaRealizada = true;
-
-    this.tituloService.buscarPorCategoria(this.categoriaSelecionada.idClasse || this.categoriaSelecionada.id).subscribe({
-      next: (titulos) => {
-        this.titulos = titulos;
-        this.carregando = false;
-        
-        if (titulos.length === 0) {
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Sem resultados',
-            detail: `Nenhum título encontrado na categoria "${this.categoriaSelecionada.nome}"`,
-            life: 3000
-          });
+    consultarPorNome() {
+        if (!this.filtroNome || this.filtroNome.trim() === '') {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Atenção',
+                detail: 'Digite um nome para buscar',
+                life: 3000
+            });
+            return;
         }
-      },
-      error: (error) => {
-        console.error('Erro ao buscar por categoria:', error);
-        this.carregando = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: error.message || 'Erro ao buscar por categoria',
-          life: 5000
-        });
-      }
-    });
-  }
 
-  consultarPorAtor() {
-    if (!this.atorSelecionado) {
-      this.titulos = [];
-      this.consultaRealizada = false;
-      return;
+        this.carregando = true;
+        this.titulos = [];
+        this.consultaRealizada = true;
+
+        this.tituloService.buscarPorNome(this.filtroNome.trim()).subscribe({
+            next: (titulos) => {
+                this.titulos = titulos;
+                this.carregando = false;
+
+                if (titulos.length === 0) {
+                    this.messageService.add({
+                        severity: 'info',
+                        summary: 'Sem resultados',
+                        detail: `Nenhum título encontrado com o nome "${this.filtroNome}"`,
+                        life: 3000
+                    });
+                }
+            },
+            error: (error) => {
+                console.error('Erro ao buscar por nome:', error);
+                this.carregando = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message || 'Erro ao buscar títulos',
+                    life: 5000
+                });
+            }
+        });
     }
 
-    this.carregando = true;
-    this.titulos = [];
-    this.consultaRealizada = true;
-
-    this.tituloService.buscarPorAtor(this.atorSelecionado.idAtor || this.atorSelecionado.id).subscribe({
-      next: (titulos) => {
-        this.titulos = titulos;
-        this.carregando = false;
-        
-        if (titulos.length === 0) {
-          this.messageService.add({
-            severity: 'info',
-            summary: 'Sem resultados',
-            detail: `Nenhum título encontrado com o ator "${this.atorSelecionado.nome}"`,
-            life: 3000
-          });
+    consultarPorCategoria() {
+        if (!this.categoriaSelecionada) {
+            this.titulos = [];
+            this.consultaRealizada = false;
+            return;
         }
-      },
-      error: (error) => {
-        console.error('Erro ao buscar por ator:', error);
-        this.carregando = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: error.message || 'Erro ao buscar por ator',
-          life: 5000
-        });
-      }
-    });
-  }
 
-  verDetalhesTitulo(titulo: Titulo) {
-    // Pode abrir um modal ou mostrar mais detalhes
-    console.log('Detalhes do título:', titulo);
-    
-    // Exemplo de mensagem com detalhes
-    this.messageService.add({
-      severity: 'info',
-      summary: `Detalhes: ${titulo.nome}`,
-      detail: `
+        this.carregando = true;
+        this.titulos = [];
+        this.consultaRealizada = true;
+
+        this.tituloService.buscarPorCategoria(this.categoriaSelecionada.idClasse || this.categoriaSelecionada.id).subscribe({
+            next: (titulos) => {
+                this.titulos = titulos;
+                this.carregando = false;
+
+                if (titulos.length === 0) {
+                    this.messageService.add({
+                        severity: 'info',
+                        summary: 'Sem resultados',
+                        detail: `Nenhum título encontrado na categoria "${this.categoriaSelecionada.nome}"`,
+                        life: 3000
+                    });
+                }
+            },
+            error: (error) => {
+                console.error('Erro ao buscar por categoria:', error);
+                this.carregando = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message || 'Erro ao buscar por categoria',
+                    life: 5000
+                });
+            }
+        });
+    }
+
+    consultarPorAtor() {
+        if (!this.atorSelecionado) {
+            this.titulos = [];
+            this.consultaRealizada = false;
+            return;
+        }
+
+        this.carregando = true;
+        this.titulos = [];
+        this.consultaRealizada = true;
+
+        this.tituloService.buscarPorAtor(this.atorSelecionado.idAtor || this.atorSelecionado.id).subscribe({
+            next: (titulos) => {
+                this.titulos = titulos;
+                this.carregando = false;
+
+                if (titulos.length === 0) {
+                    this.messageService.add({
+                        severity: 'info',
+                        summary: 'Sem resultados',
+                        detail: `Nenhum título encontrado com o ator "${this.atorSelecionado.nome}"`,
+                        life: 3000
+                    });
+                }
+            },
+            error: (error) => {
+                console.error('Erro ao buscar por ator:', error);
+                this.carregando = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Erro',
+                    detail: error.message || 'Erro ao buscar por ator',
+                    life: 5000
+                });
+            }
+        });
+    }
+
+    verDetalhesTitulo(titulo: Titulo) {
+        // Pode abrir um modal ou mostrar mais detalhes
+        console.log('Detalhes do título:', titulo);
+
+        // Exemplo de mensagem com detalhes
+        this.messageService.add({
+            severity: 'info',
+            summary: `Detalhes: ${titulo.nome}`,
+            detail: `
         Diretor: ${titulo.diretor?.nome || 'N/A'}
         Categoria: ${titulo.classe?.nome || 'N/A'}
         Valor: R$ ${titulo.classe?.valor || '0.00'}
         Atores: ${titulo.atores?.map(a => a.nome).join(', ') || 'N/A'}
       `,
-      life: 10000
-    });
-  }
+            life: 10000
+        });
+    }
 
-  voltarParaHome() {
-    this.router.navigate(['/']);
-  }
+    voltarParaHome() {
+        this.router.navigate(['/']);
+    }
 
-  private carregarCategorias() {
-    this.carregandoCategorias = true;
-    
-    this.tituloService.getCategorias().subscribe({
-      next: (categorias) => {
-        this.categorias = categorias;
-        this.carregandoCategorias = false;
-        console.log('Categorias carregadas:', categorias);
-      },
-      error: (error) => {
-        console.error('Erro ao carregar categorias:', error);
-        this.carregandoCategorias = false;
-        
-        // Fallback: categorias mockadas
-        this.categorias = [
-          { idClasse: 1, nome: 'Ação', valor: 30 },
-          { idClasse: 2, nome: 'Comédia', valor: 25 },
-          { idClasse: 3, nome: 'Drama', valor: 28 }
-        ];
-      }
-    });
-  }
+    private carregarCategorias() {
+        this.carregandoCategorias = true;
 
-  private carregarAtores() {
-    this.carregandoAtores = true;
-    
-    this.tituloService.getAtores().subscribe({
-      next: (atores) => {
-        this.atores = atores;
-        this.carregandoAtores = false;
-        console.log('Atores carregados:', atores);
-      },
-      error: (error) => {
-        console.error('Erro ao carregar atores:', error);
-        this.carregandoAtores = false;
-        
-        // Fallback: atores mockados
-        this.atores = [
-          { idAtor: 1, nome: 'Paulo' },
-          { idAtor: 2, nome: 'Maria' },
-          { idAtor: 3, nome: 'João' }
-        ];
-      }
-    });
-  }
+        this.tituloService.getCategorias().subscribe({
+            next: (categorias) => {
+                this.categorias = categorias;
+                this.carregandoCategorias = false;
+                console.log('Categorias carregadas:', categorias);
+            },
+            error: (error) => {
+                console.error('Erro ao carregar categorias:', error);
+                this.carregandoCategorias = false;
 
-  // Método para calcular quantidade disponível (se tiver essa informação)
-  calcularDisponibilidade(titulo: Titulo): number {
-    // Se seu backend não retornar quantidade, pode usar um valor padrão
-    // Ou fazer uma chamada adicional para buscar itens disponíveis
-    return titulo['quantidadeDisponivel'] || 1; // Valor padrão
-  }
+                // Fallback: categorias mockadas
+                this.categorias = [
+                    { idClasse: 1, nome: 'Ação', valor: 30 },
+                    { idClasse: 2, nome: 'Comédia', valor: 25 },
+                    { idClasse: 3, nome: 'Drama', valor: 28 }
+                ];
+            }
+        });
+    }
+
+    private carregarAtores() {
+        this.carregandoAtores = true;
+
+        this.tituloService.getAtores().subscribe({
+            next: (atores) => {
+                this.atores = atores;
+                this.carregandoAtores = false;
+                console.log('Atores carregados:', atores);
+            },
+            error: (error) => {
+                console.error('Erro ao carregar atores:', error);
+                this.carregandoAtores = false;
+
+                // Fallback: atores mockados
+                this.atores = [
+                    { idAtor: 1, nome: 'Paulo' },
+                    { idAtor: 2, nome: 'Maria' },
+                    { idAtor: 3, nome: 'João' }
+                ];
+            }
+        });
+    }
+
+    // Método para calcular quantidade disponível (se tiver essa informação)
+    calcularDisponibilidade(titulo: Titulo): number {
+        // Se seu backend não retornar quantidade, pode usar um valor padrão
+        // Ou fazer uma chamada adicional para buscar itens disponíveis
+        return titulo['quantidadeDisponivel'] || 1; // Valor padrão
+    }
+
+    // Adicione este método ao seu componente
+    limparFiltros() {
+        this.tipoConsulta = 'nome';
+        this.filtroNome = '';
+        this.categoriaSelecionada = null;
+        this.atorSelecionado = null;
+        this.titulos = [];
+        this.consultaRealizada = false;
+    }
+
+    formatarAtores(atores: any[]): string {
+        if (!atores || atores.length === 0) {
+            return 'Não informado';
+        }
+
+        // Pega os primeiros 2 atores
+        const primeirosAtores = atores.slice(0, 2);
+        const nomes = primeirosAtores.map(ator => ator.nome).join(', ');
+
+        // Se houver mais atores, adiciona reticências
+        if (atores.length > 2) {
+            return nomes + '...';
+        }
+
+        return nomes;
+    }
+
+    // Método para verificar se tem mais atores
+    temMaisAtores(atores: any[]): boolean {
+        return atores && atores.length > 2;
+    }
 }
