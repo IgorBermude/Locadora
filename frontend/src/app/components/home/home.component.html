@@ -1,0 +1,39 @@
+<div class="home-container">
+  <div class="home-card">
+    <div class="p-text-center p-mb-5">
+      <i class="pi pi-video" style="font-size: 4rem; color: #4CAF50;"></i>
+      <h1 class="p-mt-3">Sistema de Locadora</h1>
+      <p class="p-text-muted">Selecione o tipo de acesso</p>
+    </div>
+
+    <div class="p-grid p-justify-center">
+      <div class="p-col-12 p-md-6 p-lg-4">
+        <div class="option-card" (click)="acessarComoCliente()">
+          <div class="option-icon">
+            <i class="pi pi-user" style="font-size: 3rem;"></i>
+          </div>
+          <h3>Cliente</h3>
+          <p>Consulte os títulos disponíveis para locação</p>
+          <p-button label="Acessar como Cliente" icon="pi pi-arrow-right" 
+                    class="p-button-outlined"></p-button>
+        </div>
+      </div>
+
+      <div class="p-col-12 p-md-6 p-lg-4">
+        <div class="option-card" (click)="acessarComoFuncionario()">
+          <div class="option-icon">
+            <i class="pi pi-briefcase" style="font-size: 3rem;"></i>
+          </div>
+          <h3>Funcionário</h3>
+          <p>Gerencie locações, clientes e estoque</p>
+          <p-button label="Acessar como Funcionário" icon="pi pi-arrow-right" 
+                    class="p-button-outlined"></p-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-text-center p-mt-5">
+      <small class="p-text-muted">Locadora - Sistema de Gerenciamento</small>
+    </div>
+  </div>
+</div>

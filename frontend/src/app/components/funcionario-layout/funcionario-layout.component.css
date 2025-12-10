@@ -1,0 +1,23 @@
+.funcionario-dashboard {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.stat-card {
+  height: 100%;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .funcionario-dashboard {
+    padding: 1rem;
+  }
+}

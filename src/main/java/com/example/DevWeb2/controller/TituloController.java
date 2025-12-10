@@ -11,8 +11,10 @@ import com.example.DevWeb2.repository.TituloRepository;
 import com.example.DevWeb2.service.TituloService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/titulos")
@@ -26,10 +28,10 @@ public class TituloController {
     private final DiretorRepository diretorRepository;
 
     public TituloController(TituloService tituloService,
-                            TituloRepository tituloRepository,
-                            AtorRepository atorRepository,
-                            ClasseRepository classeRepository,
-                            DiretorRepository diretorRepository) {
+            TituloRepository tituloRepository,
+            AtorRepository atorRepository,
+            ClasseRepository classeRepository,
+            DiretorRepository diretorRepository) {
         this.tituloService = tituloService;
         this.tituloRepository = tituloRepository;
         this.atorRepository = atorRepository;
@@ -47,6 +49,33 @@ public class TituloController {
         return tituloService.pesquisar(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 1. Consulta por nome (busca parcial, case insensitive)
+    @GetMapping("/buscar/nome")
+    public ResponseEntity<List<Titulo>> buscarPorNome(@RequestParam String nome) {
+        List<Titulo> titulos = tituloRepository.findByNomeContainingIgnoreCase(nome);
+        return ResponseEntity.ok(titulos);
+    }
+
+    // 2. Consulta por categoria (classe)
+    @GetMapping("/buscar/categoria")
+    public ResponseEntity<List<Titulo>> buscarPorCategoria(@RequestParam Long categoriaId) {
+        List<Titulo> titulos = tituloRepository.findByClasseId(categoriaId);
+        return ResponseEntity.ok(titulos);
+    }
+
+    // 3. Consulta por ator
+    @GetMapping("/buscar/ator")
+    public ResponseEntity<List<Titulo>> buscarPorAtor(@RequestParam Long atorId) {
+        List<Titulo> titulos = tituloRepository.findByAtorId(atorId);
+        return ResponseEntity.ok(titulos);
+    }
+    // 4. Consulta todos os títulos com informações completas (para o cliente)
+    @GetMapping("/cliente/todos")
+    public ResponseEntity<List<Titulo>> listarParaCliente() {
+        List<Titulo> titulos = tituloRepository.findAll();
+        return ResponseEntity.ok(titulos);
     }
 
     @PostMapping
@@ -69,7 +98,8 @@ public class TituloController {
                     }
 
                     if (titulo.getDiretor() != null && titulo.getDiretor().getIdDiretor() != null) {
-                        Diretor diretorGerenciado = diretorRepository.getReferenceById(titulo.getDiretor().getIdDiretor());
+                        Diretor diretorGerenciado = diretorRepository
+                                .getReferenceById(titulo.getDiretor().getIdDiretor());
                         existente.setDiretor(diretorGerenciado);
                     }
 

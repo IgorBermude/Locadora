@@ -1,0 +1,25 @@
+<div class="funcionario-inicio">
+  <div class="p-card p-shadow-5">
+    <div class="p-card-body p-text-center p-p-6">
+      <i class="pi pi-cog" style="font-size: 4rem; color: var(--primary-color);"></i>
+      <h2 class="p-mt-4">Área do Funcionário</h2>
+      <p class="p-text-muted p-mt-2">
+        Use o menu lateral para acessar as funcionalidades do sistema
+      </p>
+      
+      <div class="p-mt-5">
+        <p-button 
+          label="Abrir Menu" 
+          icon="pi pi-bars"
+          (click)="abrirMenu()"
+          class="p-button-primary p-mr-2"></p-button>
+        
+        <p-button 
+          label="Ir para Locações" 
+          icon="pi pi-calendar-plus"
+          routerLink="/funcionario/locacoes"
+          class="p-button-outlined"></p-button>
+      </div>
+    </div>
+  </div>
+</div>

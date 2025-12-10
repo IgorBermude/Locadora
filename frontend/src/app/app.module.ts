@@ -32,9 +32,16 @@ import { AtoresComponent } from './crud/atores/atores.component';
 import { ClassesComponent } from './crud/classes/classes.component';
 import { TitulosComponent } from './crud/titulos/titulos.component';
 
+import { HomeComponent } from './components/home/home.component';
+import { ClienteConsultaComponent } from './components/cliente-consulta/cliente-consulta.component';
+import { FuncionarioLayoutComponent } from './components/funcionario-layout/funcionario-layout.component';
+
 @NgModule({
   declarations: [
     AppComponent,
+    HomeComponent,
+    ClienteConsultaComponent,
+    FuncionarioLayoutComponent,
     AtoresComponent,
     DiretoresComponent,
     ClientesComponent,

@@ -27,6 +27,10 @@ export class LocacoesComponent implements OnInit {
   carregando: boolean = false;
   carregandoClientes: boolean = false;
   carregandoItens: boolean = false;
+  displayDevolucaoDialog: boolean = false;
+  numeroSerieDevolucao: string = '';
+  devolucaoCarregando: boolean = false;
+  resultadoDevolucao: any = null;
 
   constructor(
     private fb: FormBuilder,
@@ -145,6 +149,71 @@ export class LocacoesComponent implements OnInit {
     this.displayDialog = true;
   }
 
+  abrirDialogDevolucao() {
+    this.numeroSerieDevolucao = '';
+    this.resultadoDevolucao = null;
+    this.displayDevolucaoDialog = true;
+  }
+
+  registrarDevolucao() {
+    if (!this.numeroSerieDevolucao || this.numeroSerieDevolucao.trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Informe o número de série do item',
+        life: 3000
+      });
+      return;
+    }
+
+    this.devolucaoCarregando = true;
+    this.resultadoDevolucao = null;
+
+    this.locacaoService.registrarDevolucao(this.numeroSerieDevolucao.trim()).subscribe({
+      next: (resultado) => {
+        console.log('✅ Devolução registrada com sucesso:', resultado);
+        this.resultadoDevolucao = resultado;
+        this.devolucaoCarregando = false;
+
+        // Recarrega as locações para atualizar a tabela
+        this.carregarLocacoes();
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Devolução Registrada',
+          detail: 'Devolução processada com sucesso',
+          life: 5000
+        });
+      },
+      error: (error) => {
+        console.error('❌ Erro ao registrar devolução:', error);
+        this.devolucaoCarregando = false;
+
+        let mensagem = 'Erro ao processar devolução';
+        if (error.status === 404) {
+          mensagem = error.error?.erro || 'Item não encontrado ou não está locado';
+        } else if (error.status === 400) {
+          mensagem = error.error?.erro || 'Dados inválidos para devolução';
+        } else if (error.message) {
+          mensagem = error.message;
+        }
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro na Devolução',
+          detail: mensagem,
+          life: 5000
+        });
+      }
+    });
+  }
+
+  fecharDialogDevolucao() {
+    this.displayDevolucaoDialog = false;
+    this.numeroSerieDevolucao = '';
+    this.resultadoDevolucao = null;
+  }
+
   salvar() {
     if (this.locacaoForm.invalid) {
       this.marcarCamposComoSujos();
@@ -170,7 +239,7 @@ export class LocacoesComponent implements OnInit {
     operacao.subscribe({
       next: (locacaoSalva) => {
         console.log('✅ Locação salva com sucesso:', locacaoSalva);
-        
+
         if (!this.editingLocacao) {
           this.carregarLocacoes();
         } else {
@@ -220,14 +289,14 @@ export class LocacoesComponent implements OnInit {
 
   confirmarExclusao() {
     const locacao = this.locacaoSelecionadaParaExcluir;
-    
+
     if (!locacao || !locacao.idLocacao) {
       this.messageService.clear('confirmacaoExclusao');
       return;
     }
 
     this.messageService.clear('confirmacaoExclusao');
-    
+
     this.locacaoService.delete(locacao.idLocacao, true).subscribe({
       next: () => {
         this.locacoes = this.locacoes.filter(l => l.idLocacao !== locacao.idLocacao);
@@ -241,16 +310,16 @@ export class LocacoesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao cancelar locação:', error);
-        
+
         let mensagemErro = 'Erro ao cancelar locação';
-        
+
         if (error.status === 409) {
           if (error.error && error.error.erro) {
             mensagemErro = error.error.erro;
           } else if (error.message) {
             mensagemErro = error.message;
           }
-          
+
           this.abrirDialogoMotivoCancelamento(locacao);
         } else {
           this.messageService.add({
@@ -260,7 +329,7 @@ export class LocacoesComponent implements OnInit {
             life: 5000
           });
         }
-        
+
         this.locacaoSelecionadaParaExcluir = null;
       }
     });
@@ -315,9 +384,27 @@ export class LocacoesComponent implements OnInit {
     });
   }
 
+  isAtrasado(locacao: Locacao): boolean {
+    if (locacao.dataDevolucaoEfetiva) {
+      return false; // Já foi devolvido
+    }
+
+    const hoje = new Date();
+    const dataDevolucaoPrevista = new Date(locacao.dataDevolucao);
+
+    return hoje > dataDevolucaoPrevista;
+  }
+
   private marcarCamposComoSujos() {
     Object.keys(this.locacaoForm.controls).forEach(key => {
       this.locacaoForm.get(key)?.markAsDirty();
     });
+  }
+
+  formatarValor(valor: any): string {
+    if (valor === null || valor === undefined) return '0.00';
+
+    const num = typeof valor === 'string' ? parseFloat(valor) : valor;
+    return num.toFixed(2);
   }
 }

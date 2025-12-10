@@ -7,6 +7,11 @@ export interface Locacao {
   itemId: number;
   dataLocacao: string;
   dataDevolucao: string;
+
+  dataDevolucaoEfetiva?: string; // Para saber se já foi devolvido
+  valorCobrado?: number;         // Valor da locação
+  multaCobrada?: number;
+
   cliente?: Cliente;
   item?: ItemDTO;
 }

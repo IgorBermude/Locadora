@@ -1,0 +1,151 @@
+<div class="cliente-container">
+  <div class="p-card">
+    <div class="p-card-header p-d-flex p-ai-center p-jc-between">
+      <div>
+        <h2 class="p-m-0">
+          <i class="pi pi-video p-mr-2"></i>
+          Consulta de Títulos - Área do Cliente
+        </h2>
+        <p class="p-text-muted p-mt-1">Consulte os títulos disponíveis para locação</p>
+      </div>
+      <p-button label="Voltar" icon="pi pi-home" 
+                (click)="voltarParaHome()" 
+                class="p-button-text"></p-button>
+    </div>
+
+    <div class="p-card-body">
+      <!-- Botões de navegação entre tipos de consulta -->
+      <div class="p-mb-5">
+        <div class="p-grid">
+          <div class="p-col-12 p-md-4">
+            <button pButton type="button" 
+                    (click)="selecionarTipoConsulta('nome')"
+                    [class]="tipoConsulta === 'nome' ? 'p-button-primary' : 'p-button-outlined'"
+                    class="p-button-block p-button-lg"
+                    label="Por Nome"></button>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <button pButton type="button" 
+                    (click)="selecionarTipoConsulta('categoria')"
+                    [class]="tipoConsulta === 'categoria' ? 'p-button-primary' : 'p-button-outlined'"
+                    class="p-button-block p-button-lg"
+                    label="Por Categoria"></button>
+          </div>
+          <div class="p-col-12 p-md-4">
+            <button pButton type="button" 
+                    (click)="selecionarTipoConsulta('ator')"
+                    [class]="tipoConsulta === 'ator' ? 'p-button-primary' : 'p-button-outlined'"
+                    class="p-button-block p-button-lg"
+                    label="Por Ator"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consulta por Nome -->
+      <div *ngIf="tipoConsulta === 'nome'" class="p-mb-5">
+        <h3>Consultar por Nome</h3>
+        <div class="p-field p-grid p-align-end">
+          <div class="p-col-12 p-md-8">
+            <label for="nomeTitulo">Nome do Título</label>
+            <input id="nomeTitulo" type="text" pInputText 
+                   [(ngModel)]="filtroNome"
+                   placeholder="Digite o nome do título..."
+                   (keyup.enter)="consultarPorNome()"
+                   style="width: 100%">
+          </div>
+          <div class="p-col-12 p-md-4">
+            <p-button label="Buscar" icon="pi pi-search" 
+                      (click)="consultarPorNome()"
+                      [disabled]="!filtroNome"
+                      class="p-button-primary"></p-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consulta por Categoria -->
+      <div *ngIf="tipoConsulta === 'categoria'" class="p-mb-5">
+        <h3>Consultar por Categoria</h3>
+        <div class="p-field">
+          <label for="categoria">Selecione uma Categoria</label>
+          <p-dropdown id="categoria" [options]="categorias" optionLabel="nome"
+                      [(ngModel)]="categoriaSelecionada"
+                      placeholder="Selecione uma categoria"
+                      [showClear]="true"
+                      (onChange)="consultarPorCategoria()">
+          </p-dropdown>
+        </div>
+      </div>
+
+      <!-- Consulta por Ator -->
+      <div *ngIf="tipoConsulta === 'ator'" class="p-mb-5">
+        <h3>Consultar por Ator</h3>
+        <div class="p-field">
+          <label for="ator">Selecione um Ator</label>
+          <p-dropdown id="ator" [options]="atores" optionLabel="nome"
+                      [(ngModel)]="atorSelecionado"
+                      placeholder="Selecione um ator"
+                      [showClear]="true"
+                      (onChange)="consultarPorAtor()">
+          </p-dropdown>
+        </div>
+      </div>
+
+      <!-- Resultados da Consulta -->
+      <div *ngIf="titulos.length > 0">
+        <h3>Resultados ({{titulos.length}} título(s) encontrado(s))</h3>
+        
+        <div class="p-grid">
+          <div class="p-col-12 p-md-6 p-lg-4" *ngFor="let titulo of titulos">
+            <div class="titulo-card p-card">
+              <div class="p-card-header">
+                <h4 class="p-m-0">{{titulo.nome}}</h4>
+                <p class="p-text-muted p-mt-1" *ngIf="titulo.nomeOriginal">
+                  {{titulo.nomeOriginal}}
+                </p>
+              </div>
+              
+              <div class="p-card-body">
+                <div class="p-mb-3">
+                  <strong>Categoria:</strong> {{titulo.classe?.nome || 'N/A'}}
+                </div>
+                <div class="p-mb-3">
+                  <strong>Diretor:</strong> {{titulo.diretor?.nome || 'N/A'}}
+                </div>
+                <div class="p-mb-3">
+                  <strong>Atores:</strong>
+                  <span *ngFor="let ator of titulo.atores; let last = last">
+                    {{ator.nome}}{{last ? '' : ', '}}
+                  </span>
+                </div>
+                <div class="p-mb-3">
+                  <strong>Valor Locação:</strong> R$ {{titulo.classe?.valor || '0.00'}}
+                </div>
+                <div class="p-mb-3">
+                  <strong>Disponível:</strong> {{titulo.quantidadeDisponivel || 0}} unidade(s)
+                </div>
+                
+                <div *ngIf="titulo.sinopse" class="p-mb-3">
+                  <strong>Sinopse:</strong>
+                  <p class="sinopse">{{titulo.sinopse}}</p>
+                </div>
+              </div>
+              
+              <div class="p-card-footer">
+                <p-button label="Ver Detalhes" icon="pi pi-eye" 
+                          (click)="verDetalhesTitulo(titulo)"
+                          class="p-button-outlined p-button-sm"></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensagem quando não há resultados -->
+      <div *ngIf="titulos.length === 0 && consultaRealizada" class="p-text-center p-p-5">
+        <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <h3 class="p-mt-3">Nenhum título encontrado</h3>
+        <p>Tente alterar os critérios da sua busca</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,10 +1,32 @@
-<button pButton type="button" label="Menu" icon="pi pi-bars" (click)="visibleSidebar = true"></button>
+<!-- Botão do menu - APENAS quando showMenu for true -->
+<div *ngIf="showMenu" class="menu-button">
+  <button pButton 
+          type="button" 
+          icon="pi pi-bars" 
+          (click)="toggleMenu()"
+          class="p-button-rounded"></button>
+</div>
 
-<p-sidebar [(visible)]="visibleSidebar" position="left" [baseZIndex]="10000">
-  <h3>CRUDs</h3>
-  <p-panelMenu [model]="items"></p-panelMenu>
+<!-- Sidebar menu - APENAS quando showMenu for true -->
+<p-sidebar *ngIf="showMenu" 
+           [(visible)]="visibleSidebar" 
+           position="left" 
+           [baseZIndex]="10000">
+  
+  <div class="sidebar-content p-3">
+    <h3 class="mt-0 mb-3">Área do Funcionário</h3>
+    
+    <p-panelMenu [model]="items" styleClass="w-full"></p-panelMenu>
+    
+    <div class="mt-4 pt-3 border-top">
+      <button pButton 
+              label="Voltar para Home" 
+              icon="pi pi-home" 
+              (click)="goToHome()"
+              class="p-button-secondary w-full"></button>
+    </div>
+  </div>
 </p-sidebar>
 
-<div style="margin-left: 20px; margin-top: 20px;">
-  <router-outlet></router-outlet>
-</div>
+<!-- Router outlet principal -->
+<router-outlet></router-outlet>
